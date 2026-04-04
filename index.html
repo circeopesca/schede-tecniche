@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schede Tecniche — Circeo Pesca</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --navy:#0d1b2a; --navy-mid:#1a2f45;
+  --teal:#2a9d8f; --teal-light:#3dbfb0;
+  --gold:#e9c46a; --gold-dark:#c89f3c;
+  --cream:#f8f4ef; --cream-dark:#ede8e0;
+  --text-dark:#0d1b2a; --text-mid:#3a4a5c; --text-light:#6b7e94;
+  --white:#ffffff; --danger:#e76f51; --border:#d5cec5;
+  --shadow:0 4px 24px rgba(13,27,42,.10);
+  --shadow-lg:0 8px 40px rgba(13,27,42,.18);
+  --radius:10px; --radius-sm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(13,27,42,.3)}
+.tb-brand{display:flex;align-items:center;gap:12px}
+.tb-logo{width:34px;height:34px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.tb-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600}
+.tb-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.09em;text-transform:uppercase;margin-top:1px}
+.tb-actions{display:flex;gap:8px;align-items:center}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .18s;white-space:nowrap}
+.btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.15)}
+.btn-ghost:hover{background:rgba(255,255,255,.16)}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:var(--teal-light);transform:translateY(-1px)}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:600}
+.btn-gold:hover{background:var(--gold-dark);color:#fff;transform:translateY(-1px)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{opacity:.88}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 9px;font-size:11px}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 60px)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--navy-mid);color:#fff;padding:16px 0;display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 60px);position:sticky;top:60px}
+.sb-section{padding:0 12px 12px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:6px}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px;padding-top:8px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:var(--radius-sm);background:none;border:none;color:rgba(255,255,255,.72);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.sb-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-btn.active{background:var(--teal);color:#fff}
+
+/* ── MAIN ── */
+.main{padding:28px 34px;overflow-y:auto}
+.view{display:none}
+.view.active{display:block}
+
+/* ── PAGE HEADERS ── */
+.page-hdr{margin-bottom:22px}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy)}
+.page-sub{font-size:13px;color:var(--text-light);margin-top:3px}
+
+/* ── TIPO CARDS ── */
+.tipo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.tipo-card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.tipo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.tipo-card.bio::before{background:var(--teal)}
+.tipo-card.conv::before{background:var(--gold)}
+.tipo-card:hover{border-color:var(--teal);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.tc-emoji{font-size:24px;margin-bottom:10px}
+.tc-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.tc-sub{font-size:11px;color:var(--text-light)}
+
+/* ── FORM ── */
+.form-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:14px}
+.form-hdr-left .back{font-size:11px;color:var(--text-light);cursor:pointer;margin-bottom:4px}
+.form-hdr-left .back:hover{color:var(--teal)}
+.form-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy)}
+.form-tipo{font-size:12px;color:var(--text-light);margin-top:2px}
+.form-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+
+.section{background:#fff;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.section-hdr{display:flex;align-items:center;gap:9px;padding:12px 16px;background:var(--cream);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.section-hdr:hover{background:var(--cream-dark)}
+.section-hdr-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-mid);flex:1}
+.chevron{font-size:9px;color:var(--text-light);transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+.section-body{padding:18px}
+.section-body.collapsed{display:none}
+
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fg3{grid-template-columns:1fr 1fr 1fr}
+.ff{grid-column:1/-1}
+
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-mid)}
+.field input,.field textarea,.field select{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark);background:#fff;transition:border-color .15s;width:100%}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,.1)}
+.field input[readonly]{background:var(--cream);color:var(--text-mid);cursor:default}
+.field textarea{resize:none;overflow:hidden;min-height:36px}
+
+/* ── IMG DROP ── */
+.img-drop{border:2px dashed var(--border);border-radius:var(--radius-sm);background:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:center}
+.img-drop:hover,.img-drop.over{border-color:var(--teal);background:rgba(42,157,143,.05)}
+.img-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-drop img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}
+.img-drop .dh{font-size:10px;color:var(--text-light);line-height:1.5;padding:8px;pointer-events:none;position:relative;z-index:1}
+.img-drop .rm{position:absolute;top:4px;right:4px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:5;line-height:1}
+.img-drop:hover .rm.show{display:flex}
+.logo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.logo-slot{height:72px}
+.prod-img-zone{height:300px;width:100%}
+
+/* ── MICRO TABLE ── */
+.micro-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.micro-tbl th{padding:6px 9px;background:var(--cream);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mid);text-align:left;border-bottom:1px solid var(--border)}
+.micro-tbl td{padding:4px 6px;border-bottom:1px solid var(--cream-dark);vertical-align:middle}
+.micro-tbl tr:last-child td{border-bottom:none}
+.micro-tbl input{border:1px solid var(--border);border-radius:3px;padding:4px 7px;font-size:11px;width:100%;font-family:'DM Mono',monospace;background:#fff}
+.micro-tbl input:focus{outline:none;border-color:var(--teal)}
+.micro-tbl .del-row{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:0 4px}
+
+/* ── NUTRI TABLE ── */
+.nutri-tbl{width:100%;border-collapse:collapse}
+.nutri-tbl th{padding:6px 9px;background:var(--cream);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mid);text-align:left;border-bottom:1px solid var(--border)}
+.nutri-tbl td{padding:5px 7px;border-bottom:1px solid var(--cream-dark);font-size:12px}
+.nutri-tbl tr:last-child td{border-bottom:none}
+.nutri-tbl .sub{color:var(--text-light);padding-left:18px}
+.nutri-tbl input{border:1px solid var(--border);border-radius:3px;padding:4px 7px;font-size:11px;width:100%;font-family:'DM Mono',monospace}
+.nutri-tbl input:focus{outline:none;border-color:var(--teal)}
+
+/* ── ARCHIVIO TABLE ── */
+.arch-tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
+.arch-tbl th{padding:10px 14px;background:var(--cream);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mid);text-align:left;border-bottom:1px solid var(--border)}
+.arch-tbl td{padding:10px 14px;border-bottom:1px solid var(--cream-dark);font-size:12px;vertical-align:middle}
+.arch-tbl tr:last-child td{border-bottom:none}
+.arch-tbl tr:hover td{background:var(--cream)}
+.row-actions{display:flex;gap:5px}
+
+/* ── IMPORT ZONE ── */
+.import-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#fff;position:relative}
+.import-zone:hover,.import-zone.over{border-color:var(--teal);background:rgba(42,157,143,.04)}
+.import-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.iz-icon{font-size:36px;margin-bottom:10px}
+.iz-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--navy);margin-bottom:5px}
+.iz-sub{font-size:12px;color:var(--text-light);line-height:1.5}
+
+/* ── IMPOSTAZIONI ── */
+.imp-fixed{background:#fff;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.imp-fixed-hdr{padding:14px 18px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;letter-spacing:.04em}
+.imp-fixed-body{padding:18px}
+
+/* ── TEMPLATE ── */
+.tpl-row{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tpl-row:hover{border-color:var(--teal);box-shadow:var(--shadow)}
+.tpl-info{display:flex;align-items:center;gap:12px}
+.tpl-emoji{font-size:20px}
+.tpl-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--navy)}
+.tpl-status{font-size:11px;margin-top:2px}
+.tpl-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(13,27,42,.5);z-index:300;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius);padding:28px;max-width:500px;width:92%;box-shadow:var(--shadow-lg)}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:5px;color:var(--navy)}
+.modal-sub{font-size:12px;color:var(--text-light);margin-bottom:18px;line-height:1.5}
+.modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:20px}
+.modal-file-input{font-family:'DM Mono',monospace;font-size:13px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);width:100%;margin-top:6px}
+.modal-file-input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,.1)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:56px 24px;color:var(--text-light)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--text-mid);margin-bottom:6px}
+.empty-sub{font-size:12px;line-height:1.6}
+
+/* ── TOAST / BANNER ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:12px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-lg);animation:toastIn .22s ease;border-left:3px solid var(--teal)}
+.toast.err{border-left-color:var(--danger)}
+@keyframes toastIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+.banner{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:400;background:var(--teal);color:#fff;padding:13px 32px;border-radius:8px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap}
+.banner.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes sdDown{from{transform:translateX(-50%) translateY(-14px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* ── PDF OVERLAY ── */
+#pdf-overlay{display:none;position:fixed;inset:0;background:#e8e0d5;z-index:200;overflow-y:auto;padding:24px}
+#pdf-overlay.open{display:block}
+.pdf-toolbar{display:flex;gap:9px;justify-content:center;margin-bottom:20px;position:sticky;top:0;background:#e8e0d5;padding:10px 0;z-index:10}
+
+/* ── SCHEDA PDF ── */
+#scheda-pdf{background:#fff;width:794px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;border:1px solid #bbb;box-shadow:0 4px 24px rgba(0,0,0,.15)}
+.p-topbar{background:#00336e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:7px 14px}
+.p-topbar-l{font-size:6.5pt;line-height:1.6}
+.p-topbar-r{font-size:6.5pt;text-align:right;line-height:1.6}
+.p-title{background:#00336e;text-align:center;padding:5px 14px;border-top:1px solid rgba(255,255,255,.2)}
+.p-title-txt{font-size:8.5pt;font-weight:bold;color:#fff;letter-spacing:.06em}
+.p-mod{background:#002255;text-align:center;padding:3px;font-size:6.5pt;color:rgba(255,255,255,.65)}
+.p-nome{background:#003a80;text-align:center;padding:7px 14px}
+.p-nome-txt{font-size:11pt;font-weight:bold;color:#fff;letter-spacing:.04em;text-transform:uppercase}
+.p-loghi{background:#f5f5f5;padding:7px 14px;border-bottom:1px solid #ddd;display:flex;gap:8px;align-items:center;justify-content:center}
+.p-logo-box{width:90px;height:62px;border:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.p-logo-box img{max-width:100%;max-height:100%;object-fit:contain}
+.p-sec{background:#00336e;color:#fff;font-size:7pt;font-weight:bold;padding:4px 10px;letter-spacing:.09em;text-transform:uppercase}
+.p-row{display:flex;border-bottom:1px solid #e8e8e8;min-height:20px}
+.p-row:last-child{border-bottom:none}
+.p-lbl{background:#f0f0f0;font-size:7pt;font-weight:bold;padding:4px 9px;width:34%;border-right:1px solid #e0e0e0;display:flex;align-items:flex-start;color:#333;flex-shrink:0}
+.p-val{padding:4px 9px;font-size:7.5pt;flex:1;word-break:break-word;min-height:18px}
+.p-tbl{width:100%;border-collapse:collapse}
+.p-tbl th{background:#e5eaf0;font-size:6.5pt;padding:4px 7px;border:1px solid #d0d8e0;text-align:left;font-weight:bold;text-transform:uppercase}
+.p-tbl td{border:1px solid #e0e0e0;padding:3px 7px;font-size:7pt}
+.p-tbl td:first-child{font-weight:bold;color:#333}
+.p-footer{background:#f5f5f5;border-top:2px solid #00336e;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;font-size:6.5pt;color:#555}
+.p-img-sec{text-align:center;padding:8px;border-bottom:1px solid #e8e8e8}
+.p-img-sec img{max-height:160px;max-width:400px;object-fit:contain}
+
+/* TOOLTIP su pulsanti icona */
+.btn[title]{position:relative}
+.btn[title]:hover::after{
+  content:attr(title);
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--navy);
+  color:#fff;
+  font-size:10px;
+  font-weight:500;
+  padding:4px 9px;
+  border-radius:4px;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:50;
+  letter-spacing:.02em;
+}
+.btn[title]:hover::before{
+  content:'';
+  position:absolute;
+  bottom:calc(100% + 1px);
+  left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--navy);
+  pointer-events:none;
+  z-index:50;
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">🐟</div>
+    <div>
+      <div class="tb-title">Circeo Pesca</div>
+      <div class="tb-sub">Schede Tecniche di Prodotto</div>
+    </div>
+  </div>
+  <div class="tb-actions">
+    <button class="btn btn-ghost" onclick="nav('impostazioni')">⚙ Impostazioni</button>
+    <button class="btn btn-gold" onclick="nav('nuova')">+ Nuova Scheda</button>
+  </div>
+</nav>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Menu</div>
+    <button class="sb-btn active" id="nav-home" onclick="nav('home')">🏠 Dashboard</button>
+    <button class="sb-btn" id="nav-archivio" onclick="nav('archivio')">📋 Archivio Schede</button>
+    <button class="sb-btn" id="nav-template" onclick="nav('template')">📑 Template</button>
+    <button class="sb-btn" id="nav-nuova" onclick="nav('nuova')">➕ Nuova Scheda</button>
+    <button class="sb-btn" id="nav-impostazioni" onclick="nav('impostazioni')">⚙ Impostazioni</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ══ HOME ══ -->
+<div class="view active" id="view-home">
+  <div class="page-hdr">
+    <div class="page-title">Importa Scheda</div>
+    <div class="page-sub">Trascina un file JSON per riaprire una scheda salvata</div>
+  </div>
+  <div class="import-zone" id="iz" ondragover="izOver(event)" ondragleave="izLeave()" ondrop="izDrop(event)">
+    <input type="file" accept=".json" onchange="izFile(this)">
+    <div class="iz-icon">📂</div>
+    <div class="iz-title">Trascina il file JSON qui</div>
+    <div class="iz-sub">oppure clicca per sfogliare<br><small>File .json esportati da questa applicazione</small></div>
+  </div>
+</div>
+
+<!-- ══ ARCHIVIO ══ -->
+<div class="view" id="view-archivio">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div class="page-hdr" style="margin:0">
+      <div class="page-title">Archivio Schede</div>
+      <div class="page-sub">Tutte le schede salvate</div>
+    </div>
+    <button class="btn btn-gold" onclick="nav('nuova')">+ Nuova Scheda</button>
+  </div>
+  <div id="archivio-body"></div>
+</div>
+
+<!-- ══ TEMPLATE ══ -->
+<div class="view" id="view-template">
+  <div class="page-hdr">
+    <div class="page-title">Template</div>
+    <div class="page-sub">Un master per ogni tipologia — modificabile e sempre aggiornabile</div>
+  </div>
+  <div id="template-body"></div>
+</div>
+
+<!-- ══ NUOVA ══ -->
+<div class="view" id="view-nuova">
+  <div class="page-hdr">
+    <div class="page-title">Nuova Scheda Tecnica</div>
+    <div class="page-sub">Seleziona la tipologia di prodotto</div>
+  </div>
+  <div class="tipo-grid" id="tipo-grid"></div>
+</div>
+
+<!-- ══ FORM ══ -->
+<div class="view" id="view-form">
+  <div class="form-hdr">
+    <div class="form-hdr-left">
+      <div class="back" id="form-back" onclick="nav('nuova')">← Cambia tipologia</div>
+      <div class="form-title" id="form-title">Scheda Tecnica</div>
+      <div class="form-tipo" id="form-tipo"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline btn-sm" onclick="nav('nuova')">✕ Annulla</button>
+      <button class="btn btn-outline btn-sm" onclick="esportaJSON()">⬇ Esporta JSON</button>
+      <button class="btn btn-teal btn-sm" id="btn-salva" onclick="chiediNome()">💾 Salva</button>
+      <button class="btn btn-gold btn-sm" onclick="anteprimaPDF()">📄 Anteprima PDF</button>
+    </div>
+  </div>
+
+  <!-- 1. DATI PRODUTTORE (readonly) -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🏢</span><span class="section-hdr-title">Dati del Produttore</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field ff"><label>Stabilimento di produzione</label><input type="text" id="f-stabilimento" readonly></div>
+        <div class="field"><label>Segnalazioni e reclami</label><input type="text" id="f-reclami" readonly></div>
+        <div class="field"><label>Email qualità</label><input type="text" id="f-email-disp" readonly></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-light);margin-top:8px">⚙ Modifica in <span style="color:var(--teal);cursor:pointer" onclick="nav('impostazioni')">Impostazioni</span></div>
+    </div>
+  </div>
+
+  <!-- 2. IMMAGINE -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🖼</span><span class="section-hdr-title">Immagine di Presentazione</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="img-drop prod-img-zone" id="drop-prodimg" ondragover="dropOver(event,this)" ondragleave="dropLeave(this)" ondrop="dropFile(event,this,'prodimg')">
+        <input type="file" accept="image/*" onchange="fileImg(this,'prodimg')">
+        <img id="img-prodimg" style="display:none" alt="">
+        <div class="dh">🖼 Trascina immagine prodotto<br>o clicca per sfogliare</div>
+        <button class="rm" id="rm-prodimg" onclick="rmImg(event,'prodimg')">✕</button>
+      </div>
+      <div style="font-size:10px;color:var(--text-light);margin-top:6px">Se non viene caricata un'immagine, la sezione non apparirà nel PDF</div>
+    </div>
+  </div>
+
+  <!-- 3. CARATTERISTICHE -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🐟</span><span class="section-hdr-title">Caratteristiche del Prodotto</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <!-- loghi -->
+      <div class="field" style="margin-bottom:16px">
+        <label>Loghi aziendali (drag & drop)</label>
+        <div class="logo-grid">
+          <div class="img-drop logo-slot" id="drop-logo0" ondragover="dropOver(event,this)" ondragleave="dropLeave(this)" ondrop="dropFile(event,this,'logo0')"><input type="file" accept="image/*" onchange="fileImg(this,'logo0')"><img id="img-logo0" style="display:none" alt=""><div class="dh" style="font-size:9px">Logo 1</div><button class="rm" id="rm-logo0" onclick="rmImg(event,'logo0')">✕</button></div>
+          <div class="img-drop logo-slot" id="drop-logo1" ondragover="dropOver(event,this)" ondragleave="dropLeave(this)" ondrop="dropFile(event,this,'logo1')"><input type="file" accept="image/*" onchange="fileImg(this,'logo1')"><img id="img-logo1" style="display:none" alt=""><div class="dh" style="font-size:9px">Logo 2</div><button class="rm" id="rm-logo1" onclick="rmImg(event,'logo1')">✕</button></div>
+          <div class="img-drop logo-slot" id="drop-logo2" ondragover="dropOver(event,this)" ondragleave="dropLeave(this)" ondrop="dropFile(event,this,'logo2')"><input type="file" accept="image/*" onchange="fileImg(this,'logo2')"><img id="img-logo2" style="display:none" alt=""><div class="dh" style="font-size:9px">Logo 3</div><button class="rm" id="rm-logo2" onclick="rmImg(event,'logo2')">✕</button></div>
+          <div class="img-drop logo-slot" id="drop-logo3" ondragover="dropOver(event,this)" ondragleave="dropLeave(this)" ondrop="dropFile(event,this,'logo3')"><input type="file" accept="image/*" onchange="fileImg(this,'logo3')"><img id="img-logo3" style="display:none" alt=""><div class="dh" style="font-size:9px">Logo 4</div><button class="rm" id="rm-logo3" onclick="rmImg(event,'logo3')">✕</button></div>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="field ff"><label>Nome commerciale prodotto</label><input type="text" id="f-nome-comm" placeholder="Es: FILETTO DI BRANZINO BIOLOGICO SURGELATO IN BLOCCO" style="font-weight:700;text-transform:uppercase"></div>
+        <div class="field ff"><label>Denominazione di vendita *</label><input type="text" id="f-denominazione" placeholder="Es: Filetti di branzino biologico surgelati in blocco"></div>
+        <div class="field"><label>Codice Articolo</label><input type="text" id="f-codice"></div>
+        <div class="field"><label>Codice EAN</label><input type="text" id="f-ean"></div>
+        <div class="field ff"><label>Ingredienti</label><textarea id="f-ingredienti" placeholder="Lista ingredienti in ordine decrescente di peso..."></textarea></div>
+        <div class="field ff"><label>Tipologia / Stato</label><input type="text" id="f-tipologia" placeholder="Es: Surgelato / Intero eviscerato"></div>
+        <div class="field ff"><label>Modalità di consumo</label><input type="text" id="f-consumo" placeholder="Es: Previa cottura"></div>
+        <div class="field ff"><label id="lbl-scadenza">Termine Minimo di Conservazione</label><input type="text" id="f-scadenza" placeholder="Es: 24 mesi dalla data di produzione"></div>
+        <div class="field ff"><label>Modalità di conservazione</label><textarea id="f-conservazione" placeholder="Es: Conservare a -18°C"></textarea></div>
+        <div class="field ff"><label>Identificativo lotto</label><textarea id="f-lotto" placeholder="Es: Data di produzione impressa sull'imballo esterno"></textarea></div>
+        <div class="field ff"><label>Specifiche di lavorazione</label><textarea id="f-lavorazione" placeholder="Es: Prodotto lavorato e confezionato in stabilimento italiano"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. CONFEZIONAMENTO -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>📦</span><span class="section-hdr-title">Confezionamento ed Imballo</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field"><label>Peso</label><input type="text" id="f-peso" placeholder="Es: 5 kg"></div>
+        <div class="field"><label>Confezione</label><input type="text" id="f-confezione" placeholder="Es: Blocco in sacchetto PE"></div>
+        <div class="field"><label>Imballo</label><input type="text" id="f-imballo" placeholder="Es: Cartone ondulato"></div>
+        <div class="field"><label>Palletizzazione</label><input type="text" id="f-palletizzazione" placeholder="Es: Pallet EUR 80×120 cm"></div>
+        <div class="field"><label>Colli × pallet</label><input type="text" id="f-colli-pallet" placeholder="Es: 40"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. NUTRIZIONALI -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🥗</span><span class="section-hdr-title">Informazioni Nutrizionali per 100 g</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <table class="nutri-tbl">
+        <thead><tr><th style="width:46%">Nutriente</th><th>Valore</th><th style="width:22%">UM</th></tr></thead>
+        <tbody>
+          <tr><td>Valore energetico</td><td><input type="text" id="n-energia"></td><td>kJ / kcal</td></tr>
+          <tr><td>Grassi</td><td><input type="text" id="n-grassi"></td><td>g</td></tr>
+          <tr><td class="sub">di cui acidi grassi saturi</td><td><input type="text" id="n-saturi"></td><td>g</td></tr>
+          <tr><td>Carboidrati</td><td><input type="text" id="n-carbo"></td><td>g</td></tr>
+          <tr><td class="sub">di cui zuccheri</td><td><input type="text" id="n-zuccheri"></td><td>g</td></tr>
+          <tr><td>Proteine</td><td><input type="text" id="n-proteine"></td><td>g</td></tr>
+          <tr><td>Sale (Cloruro di sodio)</td><td><input type="text" id="n-sale"></td><td>g</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 6. MICROBIOLOGICHE -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🔬</span><span class="section-hdr-title">Caratteristiche Microbiologiche e Chimiche</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <table class="micro-tbl">
+        <thead><tr><th style="width:36%">Parametro</th><th style="width:22%">Unità di misura</th><th>Limiti e valori guida</th><th style="width:28px"></th></tr></thead>
+        <tbody id="micro-body"></tbody>
+      </table>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="addMicro()">+ Aggiungi parametro</button>
+    </div>
+  </div>
+
+  <!-- 7. ALLERGENI -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>⚠️</span><span class="section-hdr-title">Allergeni / OGM</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field"><label>Contiene</label><input type="text" id="f-contiene" placeholder="Es: Pesce (branzino)"></div>
+        <div class="field"><label>Può contenere</label><input type="text" id="f-puo-contenere" placeholder="Es: Crostacei, Molluschi"></div>
+        <div class="field ff"><label>Cross Contamination</label><input type="text" id="f-cross" value="Rischio valutato e gestito dal Sistema Interno di Autocontrollo"></div>
+        <div class="field ff"><label>OGM</label><input type="text" id="f-ogm" value="In accordo con i Regolamenti (CE) n. 1829/2003 e (CE) 1830/2003 il prodotto non richiede etichettatura supplementare"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. RIFERIMENTI NORMATIVI -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>📜</span><span class="section-hdr-title">Riferimenti Normativi</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="field"><label>Riferimenti normativi</label><textarea id="f-rif-norm" placeholder="Es: Reg. CE 2073/2005 e s.m.i."></textarea></div>
+    </div>
+  </div>
+
+  <!-- 9. REVISIONE -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>✍️</span><span class="section-hdr-title">Revisione e Firma</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg fg3">
+        <div class="field"><label>Revisione N°</label><input type="text" id="f-rev-n" placeholder="Es: 1"></div>
+        <div class="field"><label>Del</label><input type="date" id="f-rev-data"></div>
+        <div class="field"><label>Firma</label><input type="text" id="f-firma" placeholder="Nome e cognome"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;justify-content:flex-end;padding:6px 0 32px">
+    <button class="btn btn-outline btn-sm" onclick="nav('nuova')">✕ Annulla</button>
+    <button class="btn btn-outline btn-sm" onclick="esportaJSON()">⬇ Esporta JSON</button>
+    <button class="btn btn-teal btn-sm" onclick="chiediNome()">💾 Salva</button>
+    <button class="btn btn-gold btn-sm" onclick="anteprimaPDF()">📄 Anteprima PDF</button>
+  </div>
+</div>
+
+<!-- ══ IMPOSTAZIONI ══ -->
+<div class="view" id="view-impostazioni">
+  <div class="page-hdr">
+    <div class="page-title">Impostazioni Azienda</div>
+    <div class="page-sub">I dati vengono salvati localmente e precompilati in ogni scheda</div>
+  </div>
+
+  <!-- DATI FISSI -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>🏢</span><span class="section-hdr-title">Intestazione — Dati aziendali</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field ff"><label>Ragione Sociale</label><input type="text" id="s-ragione" placeholder="CIRCEO PESCA S.p.A."></div>
+        <div class="field ff"><label>Indirizzo stabilimento</label><input type="text" id="s-indirizzo" placeholder="via J.Gagarin 1, Corciano (PG)"></div>
+        <div class="field"><label>Telefono</label><input type="text" id="s-tel" placeholder="075/5171660"></div>
+        <div class="field"><label>Sito web</label><input type="text" id="s-fax" placeholder="www.circeopesca.it" value="www.circeopesca.it"></div>
+        <div class="field"><label>Email Qualità</label><input type="text" id="s-email" placeholder="qualita@circeopesca.it"></div>
+        <div class="field"><label>Segnalazioni e reclami</label><input type="text" id="s-reclami" placeholder="qualita@circeopesca.it"></div>
+        <div class="field"><label>Codice Operatore Biologico</label><input type="text" id="s-bio-code" placeholder="AH 28"></div>
+        <div class="field"><label>Marcatura CE stabilimento</label><input type="text" id="s-ce" placeholder="IT 400 UE"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATI AGGIORNABILI -->
+  <div class="section">
+    <div class="section-hdr" onclick="togSec(this)"><span>📋</span><span class="section-hdr-title">Dati Anagrafici aggiornabili</span><span class="chevron open">▼</span></div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field"><label>P.IVA</label><input type="text" id="s-piva" placeholder="00656120540"></div>
+        <div class="field"><label>CCIAA</label><input type="text" id="s-cciaa" placeholder="130155"></div>
+        <div class="field"><label>Registro Tribunale</label><input type="text" id="s-trib" placeholder="Trib. PG 10055"></div>
+        <div class="field"><label>Codice Fiscale</label><input type="text" id="s-cf" placeholder=""></div>
+        <div class="field ff"><label>Note aggiuntive intestazione</label><input type="text" id="s-note" placeholder=""></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px;padding-bottom:32px">
+    <button class="btn btn-teal" onclick="salvaImpostazioni()">💾 Salva impostazioni</button>
+    <button class="btn btn-outline" onclick="resetImpostazioni()">↺ Ripristina default</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- PDF OVERLAY -->
+<div id="pdf-overlay">
+  <div class="pdf-toolbar">
+    <button class="btn btn-outline" onclick="chiudiPDF()">✕ Chiudi</button>
+    <button class="btn btn-gold" onclick="scaricaPDF()">⬇ Scarica PDF</button>
+  </div>
+  <div id="scheda-pdf"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+<div class="banner" id="banner"></div>
+
+<!-- MODAL: nome file -->
+<div class="modal-bg" id="modal-nome">
+  <div class="modal">
+    <div class="modal-title">Salva Scheda Tecnica</div>
+    <div class="modal-sub">Verifica o modifica il nome — verrà usato per i file PDF e JSON</div>
+    <label style="font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-mid)">Nome file</label>
+    <input type="text" class="modal-file-input" id="nome-file" placeholder="nome_file">
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="chiudiModal('modal-nome')">Annulla</button>
+      <button class="btn btn-teal" onclick="confermaSalva()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: import -->
+<div class="modal-bg" id="modal-import">
+  <div class="modal">
+    <div class="modal-title">Scheda Importata</div>
+    <div class="modal-sub">Tipologia riconosciuta: <strong id="imp-tipo"></strong><br>Prodotto: <strong id="imp-nome"></strong></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="chiudiModal('modal-import')">Annulla</button>
+      <button class="btn btn-teal" onclick="importaNuova()">📋 Usa come nuova base</button>
+      <button class="btn btn-gold" onclick="importaRevisiona()">✏ Revisiona</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: elimina -->
+<div class="modal-bg" id="modal-del">
+  <div class="modal">
+    <div class="modal-title">Elimina scheda</div>
+    <div class="modal-sub">Sei sicuro? L'operazione è irreversibile.</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="chiudiModal('modal-del')">Annulla</button>
+      <button class="btn btn-danger" onclick="confermaElimina()">Elimina</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFIGURAZIONE TIPOLOGIE
+// ═══════════════════════════════════════════════════════════════════════════════
+const TIPI = {
+  BIO_FRESCO_SURGELATO_CASSE: {
+    label:'Biologico Fresco & Surgelato — Casse/Vasche', short:'Bio · Fresco/Surg · Casse',
+    emoji:'🌿❄️', isBio:true, scadenza:'Data di scadenza',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'E. coli',u:'UFC/g'},{p:'Listeria monocytogenes',u:'UFC/g'},{p:'Salmonella spp',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'}]
+  },
+  BIO_SURGELATO_BLOCCHI: {
+    label:'Biologico Surgelato — Blocchi', short:'Bio · Surgelato · Blocchi',
+    emoji:'🌿🧊', isBio:true, scadenza:'Termine Minimo di Conservazione',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'Enterobatteri',u:'UFC/g'},{p:'Listeria monocytogenes',u:'UFC/g'},{p:'Salmonella',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'},{p:'Clostridi solfito riduttori',u:'UFC/g'},{p:'Inibenti',u:'Assenti'},{p:'Bacillus cereus presunto',u:'UFC/g'},{p:'Istamina',u:'mg/Kg'},{p:'Glutine',u:'mg/Kg'}]
+  },
+  BIO_SURGELATO_CONFEZIONATO: {
+    label:'Biologico Surgelato — Confezionato', short:'Bio · Surgelato · Confez.',
+    emoji:'🌿📦', isBio:true, scadenza:'Termine Minimo di Conservazione',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'Listeria monocytogenes',u:'in 25 g'},{p:'Salmonella',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'},{p:'E. coli',u:'UFC/g'}]
+  },
+  CONV_FRESCO_CASSE: {
+    label:'Convenzionale Fresco — Casse', short:'Conv. · Fresco · Casse',
+    emoji:'🐟📦', isBio:false, scadenza:'Data di scadenza',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'E. coli',u:'UFC/g'},{p:'Listeria monocytogenes',u:'UFC/g'},{p:'Salmonella spp',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'}]
+  },
+  CONV_FRESCO_CONF_RTC: {
+    label:'Convenzionale Fresco — Confezionato RTC', short:'Conv. · Fresco · RTC',
+    emoji:'🐟🥡', isBio:false, scadenza:'Shelf life',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'Listeria monocytogenes',u:'UFC/g'},{p:'Salmonella',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'},{p:'Bacillus cereus presunto',u:'UFC/g'},{p:'E. coli',u:'UFC/g'}]
+  },
+  CONV_FRESCO_CONF_RTE: {
+    label:'Convenzionale Fresco — Confezionato RTE', short:'Conv. · Fresco · RTE',
+    emoji:'🐟🍽️', isBio:false, scadenza:'Shelf life',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'Listeria monocytogenes',u:'in 25 g'},{p:'Salmonella',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'},{p:'Enterobacteriacee',u:'UFC/g'},{p:'E. coli',u:'UFC/g'}]
+  },
+  CONV_SURGELATO_CARTONI: {
+    label:'Convenzionale Surgelato — Cartoni', short:'Conv. · Surgelato · Cartoni',
+    emoji:'🐟❄️', isBio:false, scadenza:'Termine Minimo di Conservazione',
+    micro:[{p:'CBT',u:'UFC/g'},{p:'Listeria monocytogenes',u:'UFC/g'},{p:'Salmonella',u:'in 25 g'},{p:'Staphylococcus aureus',u:'UFC/g'},{p:'Bacillus cereus presunto',u:'UFC/g'},{p:'E. coli',u:'UFC/g'}]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATO
+// ═══════════════════════════════════════════════════════════════════════════════
+let schede = [];
+let tipo_corrente = null;
+let id_corrente = null;
+let del_target = null;
+let imp_data = null;
+let is_template = false;
+let imgs = {prodimg:null,logo0:null,logo1:null,logo2:null,logo3:null};
+
+const DEFAULTS_IMP = {
+  's-ragione':'CIRCEO PESCA S.p.A.',
+  's-indirizzo':'via J.Gagarin 1, Corciano (PG)',
+  's-tel':'075/5171660', 's-fax':'www.circeopesca.it',
+  's-email':'qualita@circeopesca.it',
+  's-reclami':'qualita@circeopesca.it',
+  's-bio-code':'AH 28', 's-ce':'IT 400 UE',
+  's-piva':'00656120540', 's-cciaa':'130155',
+  's-trib':'Trib. PG 10055', 's-cf':'', 's-note':''
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+function caricaDati() {
+  const s = localStorage.getItem('cp_schede');
+  schede = s ? JSON.parse(s) : [];
+  const st = localStorage.getItem('cp_settings');
+  const data = st ? {...DEFAULTS_IMP, ...JSON.parse(st)} : {...DEFAULTS_IMP};
+  Object.keys(data).forEach(k => { const el = document.getElementById(k); if(el) el.value = data[k]; });
+}
+function salvaDati() { localStorage.setItem('cp_schede', JSON.stringify(schede)); }
+
+function getImp() {
+  const keys = Object.keys(DEFAULTS_IMP);
+  return keys.reduce((o,k) => { o[k] = (document.getElementById(k)||{}).value||''; return o; }, {});
+}
+
+function salvaImpostazioni() {
+  localStorage.setItem('cp_settings', JSON.stringify(getImp()));
+  mostraBanner('Impostazioni salvate correttamente ✓');
+  aggiornaReadonly();
+}
+
+function resetImpostazioni() {
+  Object.keys(DEFAULTS_IMP).forEach(k => { const el = document.getElementById(k); if(el) el.value = DEFAULTS_IMP[k]; });
+  localStorage.setItem('cp_settings', JSON.stringify(DEFAULTS_IMP));
+  mostraBanner('Impostazioni ripristinate ai valori predefiniti');
+  aggiornaReadonly();
+}
+
+function aggiornaReadonly() {
+  const imp = getImp();
+  const isBio = tipo_corrente && TIPI[tipo_corrente]?.isBio;
+  const bioLine = isBio ? ` | Codice operatore biologico: ${imp['s-bio-code']}` : '';
+  const stab = `${imp['s-indirizzo']} - ${imp['s-ce']}${bioLine}`;
+  const el_s = document.getElementById('f-stabilimento');
+  const el_r = document.getElementById('f-reclami');
+  const el_e = document.getElementById('f-email-disp');
+  if(el_s) el_s.value = stab;
+  if(el_r) el_r.value = imp['s-reclami'];
+  if(el_e) el_e.value = imp['s-email'];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NAVIGAZIONE
+// ═══════════════════════════════════════════════════════════════════════════════
+function nav(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
+  const view = document.getElementById('view-'+id);
+  if(!view) return;
+  view.classList.add('active');
+  const btn = document.getElementById('nav-'+id);
+  if(btn) btn.classList.add('active');
+  const main = document.querySelector('.main');
+  if(main) main.scrollTop = 0;
+  if(id === 'archivio') renderArchivio();
+  if(id === 'template') renderTemplate();
+  if(id === 'nuova') renderTipoGrid();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIPO GRID
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderTipoGrid() {
+  const g = document.getElementById('tipo-grid');
+  if(!g) return;
+  g.innerHTML = Object.entries(TIPI).map(([k,cfg]) => `
+    <div class="tipo-card ${cfg.isBio?'bio':'conv'}" onclick="apriForm('${k}')">
+      <div class="tc-emoji">${cfg.emoji}</div>
+      <div class="tc-title">${cfg.label}</div>
+      <div class="tc-sub">${cfg.short}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FORM
+// ═══════════════════════════════════════════════════════════════════════════════
+function apriForm(tipo, editId=null, dati=null) {
+  tipo_corrente = tipo;
+  id_corrente = editId;
+  is_template = false;
+  imgs = {prodimg:null,logo0:null,logo1:null,logo2:null,logo3:null};
+  const cfg = TIPI[tipo];
+
+  document.getElementById('form-title').textContent = editId ? 'Modifica Scheda Tecnica' : 'Nuova Scheda Tecnica';
+  document.getElementById('form-tipo').textContent = cfg.label;
+  document.getElementById('form-back').onclick = () => nav('nuova');
+  document.getElementById('lbl-scadenza').textContent = cfg.scadenza;
+  document.getElementById('btn-salva').textContent = '💾 Salva';
+
+  aggiornaReadonly();
+  costruisciMicro(cfg.micro, []);
+  ['prodimg','logo0','logo1','logo2','logo3'].forEach(k => resetSlot(k));
+  svuotaForm();
+
+  if(dati) popola(dati);
+  nav('form');
+  setTimeout(initAutoResize, 80);
+}
+
+function apriTemplate(tipo) {
+  tipo_corrente = tipo;
+  id_corrente = null;
+  is_template = true;
+  imgs = {prodimg:null,logo0:null,logo1:null,logo2:null,logo3:null};
+  const cfg = TIPI[tipo];
+  const tpls = getTpl();
+  const dati = tpls[tipo] || null;
+
+  document.getElementById('form-title').textContent = 'Modifica Template — ' + cfg.label;
+  document.getElementById('form-tipo').textContent = 'Template · ' + cfg.label;
+  document.getElementById('form-back').onclick = () => nav('template');
+  document.getElementById('lbl-scadenza').textContent = cfg.scadenza;
+  document.getElementById('btn-salva').textContent = '💾 Salva Template';
+
+  aggiornaReadonly();
+  costruisciMicro(cfg.micro, []);
+  ['prodimg','logo0','logo1','logo2','logo3'].forEach(k => resetSlot(k));
+  svuotaForm();
+
+  if(dati) popola(dati);
+  nav('form');
+  setTimeout(initAutoResize, 80);
+}
+
+function nuovaDaTemplate(tipo) {
+  const tpls = getTpl();
+  const dati = tpls[tipo];
+  if(!dati) return;
+  apriForm(tipo, null, {...dati});
+}
+
+function costruisciMicro(std, extra) {
+  const tbody = document.getElementById('micro-body');
+  if(!tbody) return;
+  tbody.innerHTML = std.map(m => `
+    <tr>
+      <td><input type="text" value="${m.p}" placeholder="Parametro" data-mp></td>
+      <td><input type="text" value="${m.u}" placeholder="UM" data-mu></td>
+      <td><input type="text" data-mv placeholder="—"></td>
+      <td></td>
+    </tr>`).join('') +
+  extra.map(r => `
+    <tr>
+      <td><input type="text" value="${r.p||''}" placeholder="Parametro" data-mp class="extra"></td>
+      <td><input type="text" value="${r.u||''}" placeholder="UM" data-mu class="extra"></td>
+      <td><input type="text" value="${r.v||''}" data-mv class="extra" placeholder="—"></td>
+      <td><button class="del-row" onclick="this.closest('tr').remove()">✕</button></td>
+    </tr>`).join('');
+}
+
+function addMicro() {
+  const tbody = document.getElementById('micro-body');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Parametro" data-mp class="extra"></td>
+    <td><input type="text" placeholder="UM" data-mu class="extra"></td>
+    <td><input type="text" placeholder="—" data-mv class="extra"></td>
+    <td><button class="del-row" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function svuotaForm() {
+  ['f-nome-comm','f-denominazione','f-codice','f-ean','f-ingredienti','f-tipologia',
+   'f-consumo','f-scadenza','f-conservazione','f-lotto','f-lavorazione',
+   'f-peso','f-confezione','f-imballo','f-palletizzazione','f-colli-pallet',
+   'f-contiene','f-puo-contenere','f-rif-norm','f-rev-n','f-rev-data','f-firma',
+   'n-energia','n-grassi','n-saturi','n-carbo','n-zuccheri','n-proteine','n-sale'
+  ].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  const cross = document.getElementById('f-cross');
+  if(cross) cross.value = 'Rischio valutato e gestito dal Sistema Interno di Autocontrollo';
+  const ogm = document.getElementById('f-ogm');
+  if(ogm) ogm.value = "In accordo con i Regolamenti (CE) n. 1829/2003 e (CE) 1830/2003 il prodotto non richiede etichettatura supplementare";
+  document.querySelectorAll('[data-mv]').forEach(el => el.value = '');
+}
+
+function popola(d) {
+  const map = {
+    'f-nome-comm':'nomeComm','f-denominazione':'denominazione','f-codice':'codice',
+    'f-ean':'ean','f-ingredienti':'ingredienti','f-tipologia':'tipologia',
+    'f-consumo':'consumo','f-scadenza':'scadenza','f-conservazione':'conservazione',
+    'f-lotto':'lotto','f-lavorazione':'lavorazione','f-peso':'peso',
+    'f-confezione':'confezione','f-imballo':'imballo','f-palletizzazione':'palletizzazione',
+    'f-colli-pallet':'colliPallet','f-contiene':'contiene','f-puo-contenere':'puoContenere',
+    'f-cross':'cross','f-ogm':'ogm','f-rif-norm':'rifNorm',
+    'f-rev-n':'revN','f-rev-data':'revData','f-firma':'firma'
+  };
+  Object.entries(map).forEach(([id,key]) => { const el=document.getElementById(id); if(el&&d[key]!==undefined) el.value=d[key]||''; });
+  if(d.nutri) {
+    Object.entries(d.nutri).forEach(([k,v]) => { const el=document.getElementById('n-'+k); if(el) el.value=v||''; });
+  }
+  // Micro valori
+  if(d.micro) {
+    document.querySelectorAll('[data-mp]').forEach(inp => {
+      const param = inp.value;
+      const mv = inp.closest('tr')?.querySelector('[data-mv]');
+      if(mv && d.micro[param] !== undefined) mv.value = typeof d.micro[param]==='object' ? d.micro[param].v||'' : d.micro[param];
+    });
+  }
+  // Micro extra
+  if(d.microExtra && d.microExtra.length) {
+    const tbody = document.getElementById('micro-body');
+    d.microExtra.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${r.p||''}" placeholder="Parametro" data-mp class="extra"></td>
+        <td><input type="text" value="${r.u||''}" placeholder="UM" data-mu class="extra"></td>
+        <td><input type="text" value="${r.v||''}" placeholder="—" data-mv class="extra"></td>
+        <td><button class="del-row" onclick="this.closest('tr').remove()">✕</button></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  // Immagini
+  if(d.imgs) Object.entries(d.imgs).forEach(([k,b64]) => { if(b64) setSlot(k,b64); });
+  setTimeout(initAutoResize, 80);
+}
+
+function raccogliForm() {
+  const micro = {}, microExtra = [];
+  document.querySelectorAll('#micro-body tr').forEach(tr => {
+    const p = tr.querySelector('[data-mp]')?.value?.trim();
+    const u = tr.querySelector('[data-mu]')?.value||'';
+    const v = tr.querySelector('[data-mv]')?.value||'';
+    if(!p) return;
+    if(tr.querySelector('.extra')) microExtra.push({p,u,v});
+    else micro[p] = {v,u};
+  });
+  return {
+    type: tipo_corrente,
+    nomeComm: g('f-nome-comm'), denominazione: g('f-denominazione'),
+    codice: g('f-codice'), ean: g('f-ean'), ingredienti: g('f-ingredienti'),
+    tipologia: g('f-tipologia'), consumo: g('f-consumo'), scadenza: g('f-scadenza'),
+    conservazione: g('f-conservazione'), lotto: g('f-lotto'), lavorazione: g('f-lavorazione'),
+    peso: g('f-peso'), confezione: g('f-confezione'), imballo: g('f-imballo'),
+    palletizzazione: g('f-palletizzazione'), colliPallet: g('f-colli-pallet'),
+    contiene: g('f-contiene'), puoContenere: g('f-puo-contenere'),
+    cross: g('f-cross'), ogm: g('f-ogm'), rifNorm: g('f-rif-norm'),
+    revN: g('f-rev-n'), revData: g('f-rev-data'), firma: g('f-firma'),
+    nutri: { energia:g('n-energia'),grassi:g('n-grassi'),saturi:g('n-saturi'),
+      carbo:g('n-carbo'),zuccheri:g('n-zuccheri'),proteine:g('n-proteine'),sale:g('n-sale') },
+    micro, microExtra, imgs: {...imgs},
+    imp: getImp(), savedAt: new Date().toISOString()
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALVATAGGIO
+// ═══════════════════════════════════════════════════════════════════════════════
+function chiediNome() {
+  if(is_template) { confermaSalvaTemplate(); return; }
+  const cod = g('f-codice') || 'SCHEDA';
+  const rev = g('f-rev-n') || '0';
+  const data = g('f-rev-data') || new Date().toISOString().slice(0,10);
+  document.getElementById('nome-file').value = `${cod}.${rev}_${data}`;
+  apriModal('modal-nome');
+}
+
+function confermaSalva() {
+  const nome = document.getElementById('nome-file').value.trim();
+  if(!nome) { toast('Inserire un nome file', true); return; }
+  const dati = raccogliForm();
+  if(!dati.denominazione) { toast('Inserire la denominazione di vendita', true); return; }
+  dati.nomeFile = nome;
+  if(id_corrente) {
+    const i = schede.findIndex(x => x.id === id_corrente);
+    if(i > -1) schede[i] = {...schede[i], ...dati};
+  } else {
+    dati.id = 'cp_' + Date.now();
+    id_corrente = dati.id;
+    schede.unshift(dati);
+  }
+  salvaDati();
+  chiudiModal('modal-nome');
+  mostraBanner('Informazioni salvate correttamente ✓');
+}
+
+function confermaSalvaTemplate() {
+  const dati = raccogliForm();
+  const tpls = getTpl();
+  tpls[tipo_corrente] = dati;
+  salvaTpl(tpls);
+  mostraBanner('Template salvato correttamente ✓');
+  nav('template');
+}
+
+function esportaJSON() {
+  // Must be saved first to have a filename
+  const scheda = id_corrente ? schede.find(x => x.id === id_corrente) : null;
+  const nome = scheda?.nomeFile;
+  if(!nome) {
+    toast('Salva prima la scheda per definire il nome del file', true);
+    return;
+  }
+  const dati = raccogliForm();
+  dati.nomeFile = nome;
+  esportaJSONDati(dati, nome);
+  toast('JSON esportato: ' + nome + '.json');
+}
+
+function esportaJSONDati(dati, nome) {
+  const blob = new Blob([JSON.stringify(dati,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=nome+'.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TEMPLATE
+// ═══════════════════════════════════════════════════════════════════════════════
+function getTpl() { const t=localStorage.getItem('cp_tpl'); return t?JSON.parse(t):{}; }
+function salvaTpl(t) { localStorage.setItem('cp_tpl', JSON.stringify(t)); }
+
+function renderTemplate() {
+  const body = document.getElementById('template-body');
+  if(!body) return;
+  const tpls = getTpl();
+  body.innerHTML = Object.entries(TIPI).map(([k,cfg]) => {
+    const ha = !!(tpls[k]?.denominazione || tpls[k]?.nomeComm);
+    return `<div class="tpl-row">
+      <div class="tpl-info">
+        <span class="tpl-emoji">${cfg.emoji}</span>
+        <div>
+          <div class="tpl-name">${cfg.label}</div>
+          <div class="tpl-status" style="color:${ha?'var(--teal)':'var(--text-light)'}">${ha?'✓ Compilato':'Vuoto'}</div>
+        </div>
+      </div>
+      <div class="tpl-actions">
+        <button class="btn btn-outline btn-sm" onclick="apriTemplate('${k}')">✏ Modifica</button>
+        <button class="btn btn-teal btn-sm" onclick="nuovaDaTemplate('${k}')" ${!ha?'disabled style="opacity:.5;cursor:not-allowed"':''}>📋 Usa come base</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ARCHIVIO
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderArchivio() {
+  const body = document.getElementById('archivio-body');
+  if(!body) return;
+  if(!schede.length) {
+    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nessuna scheda</div><div class="empty-sub">Crea o importa la tua prima scheda tecnica</div></div>`;
+    return;
+  }
+  body.innerHTML = `<table class="arch-tbl">
+    <thead><tr>
+      <th>Denominazione di vendita</th><th>Codice</th><th>Rev.</th><th>Salvata</th><th>Azioni</th>
+    </tr></thead>
+    <tbody>${schede.map(s => `<tr>
+      <td style="white-space:normal;min-width:180px"><strong>${s.denominazione||s.nomeComm||'—'}</strong></td>
+      <td><code style="font-size:11px">${s.codice||'—'}</code></td>
+      <td style="font-size:11px">${s.revN||'—'}</td>
+      <td style="font-size:11px;color:var(--text-light)">${s.savedAt?new Date(s.savedAt).toLocaleDateString('it-IT'):'—'}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-outline btn-xs" title="Modifica" onclick="apriForm('${s.type}','${s.id}',schede.find(x=>x.id==='${s.id}'))">✏</button>
+        <button class="btn btn-teal btn-xs" title="Anteprima PDF" onclick="anteprima('${s.id}')">📄</button>
+        <button class="btn btn-outline btn-xs" title="Esporta JSON" onclick="esportaJSONDati(schede.find(x=>x.id==='${s.id}'),schede.find(x=>x.id==='${s.id}')?.nomeFile||'scheda')">⬇</button>
+        <button class="btn btn-danger btn-xs" title="Elimina" onclick="chiediElimina('${s.id}')">✕</button>
+      </div></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function chiediElimina(id) { del_target=id; apriModal('modal-del'); }
+function confermaElimina() { schede=schede.filter(x=>x.id!==del_target); salvaDati(); renderArchivio(); chiudiModal('modal-del'); toast('Scheda eliminata'); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMPORT
+// ═══════════════════════════════════════════════════════════════════════════════
+function izOver(e) { e.preventDefault(); document.getElementById('iz').classList.add('over'); }
+function izLeave() { document.getElementById('iz').classList.remove('over'); }
+function izDrop(e) { e.preventDefault(); izLeave(); const f=e.dataTransfer.files[0]; if(f) leggiJSON(f); }
+function izFile(inp) { const f=inp.files[0]; if(f) leggiJSON(f); }
+
+function leggiJSON(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if(!d.type || !TIPI[d.type]) throw new Error('Tipo non riconosciuto');
+      imp_data = d;
+      document.getElementById('imp-tipo').textContent = TIPI[d.type].label;
+      document.getElementById('imp-nome').textContent = d.denominazione||d.nomeComm||'—';
+      apriModal('modal-import');
+    } catch(err) { toast('File non valido o formato non supportato', true); }
+  };
+  r.readAsText(file);
+}
+
+function importaNuova() { chiudiModal('modal-import'); apriForm(imp_data.type, null, {...imp_data, id:null}); toast('Importato come nuova scheda'); }
+function importaRevisiona() {
+  chiudiModal('modal-import');
+  const ex = schede.find(x=>x.id===imp_data.id);
+  if(!ex) { imp_data.id='cp_'+Date.now(); schede.unshift(imp_data); salvaDati(); }
+  apriForm(imp_data.type, imp_data.id, imp_data);
+  toast('Aperto per revisione');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMMAGINI
+// ═══════════════════════════════════════════════════════════════════════════════
+function dropOver(e,el) { e.preventDefault(); el.classList.add('over'); }
+function dropLeave(el) { el.classList.remove('over'); }
+function dropFile(e,el,key) { e.preventDefault(); el.classList.remove('over'); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')) leggiImg(f,key); }
+function fileImg(inp,key) { const f=inp.files[0]; if(f) leggiImg(f,key); }
+
+function leggiImg(file,key) {
+  const r = new FileReader();
+  r.onload = e => setSlot(key, e.target.result);
+  r.readAsDataURL(file);
+}
+
+function setSlot(key,b64) {
+  imgs[key] = b64;
+  const img = document.getElementById('img-'+key);
+  const rm = document.getElementById('rm-'+key);
+  const dh = document.querySelector(`#drop-${key} .dh`);
+  if(img) { img.src=b64; img.style.display='block'; }
+  if(rm) rm.classList.add('show');
+  if(dh) dh.style.display='none';
+}
+
+function resetSlot(key) {
+  imgs[key] = null;
+  const img = document.getElementById('img-'+key);
+  const rm = document.getElementById('rm-'+key);
+  const dh = document.querySelector(`#drop-${key} .dh`);
+  if(img) { img.src=''; img.style.display='none'; }
+  if(rm) rm.classList.remove('show');
+  if(dh) dh.style.display='';
+}
+
+function rmImg(e,key) { e.stopPropagation(); resetSlot(key); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════════════════════════════════════════════
+function anteprimaPDF() {
+  const d = raccogliForm();
+  if(!d.denominazione && !d.nomeComm) { toast('Inserire almeno la denominazione di vendita', true); return; }
+  const scheda = id_corrente ? schede.find(x => x.id === id_corrente) : null;
+  window._anteprimaNome = scheda?.nomeFile || null;
+  window._anteprimaId = null;
+  renderPDF(d);
+  document.getElementById('pdf-overlay').classList.add('open');
+}
+
+function anteprima(id) {
+  const s = schede.find(x=>x.id===id);
+  if(!s) return;
+  const savedImgs = {...imgs};
+  if(s.imgs) Object.assign(imgs, s.imgs);
+  renderPDF(s);
+  imgs = savedImgs;
+  // Store for download button
+  window._anteprimaNome = s.nomeFile || s.codice || 'scheda';
+  window._anteprimaId = id;
+  document.getElementById('pdf-overlay').classList.add('open');
+}
+
+function chiudiPDF() { document.getElementById('pdf-overlay').classList.remove('open'); }
+
+function renderPDF(d) {
+  const cfg = TIPI[d.type] || {};
+  const imp = d.imp || getImp();
+  const isBio = cfg.isBio;
+  const bioLine = isBio ? ` | Codice operatore controllato per il BIOLOGICO ${imp['s-bio-code']}` : '';
+  const piva = imp['s-piva']||''; const cciaa = imp['s-cciaa']||''; const trib = imp['s-trib']||'';
+  const ragione = imp['s-ragione']||'';
+  const indirizzo = imp['s-indirizzo']||'';
+  const ce = imp['s-ce']||'';
+
+  // Micro
+  let microR = '';
+  if(d.micro) Object.entries(d.micro).forEach(([p,val]) => {
+    const vv = typeof val==='object'?val.v:val;
+    const uu = typeof val==='object'?val.u:'';
+    microR += `<tr><td>${p}</td><td>${uu}</td><td>${vv}</td></tr>`;
+  });
+  if(d.microExtra) d.microExtra.forEach(r => { microR += `<tr><td>${r.p||''}</td><td>${r.u||''}</td><td>${r.v||''}</td></tr>`; });
+
+  // Loghi
+  const loghiHTML = [0,1,2,3].map(i => {
+    const src = imgs[`logo${i}`] || (d.imgs && d.imgs[`logo${i}`]);
+    return `<div class="p-logo-box">${src?`<img src="${src}" alt="">`:'<span style="font-size:6pt;color:#ccc">—</span>'}</div>`;
+  }).join('');
+
+  // Immagine prodotto
+  const prodSrc = imgs.prodimg || (d.imgs && d.imgs.prodimg);
+
+  document.getElementById('scheda-pdf').innerHTML = `
+  <div class="p-topbar">
+    <div class="p-topbar-l"><strong>${ragione}</strong><br>${indirizzo} - P.IVA ${piva} - CCIAA ${cciaa} - ${trib}</div>
+    <div class="p-topbar-r">Tel: ${imp['s-tel']||''} | Web: ${imp['s-fax']||''}<br>${imp['s-email']||''}</div>
+  </div>
+  <div class="p-title"><div class="p-title-txt">SCHEDA TECNICA di PRODOTTO</div></div>
+  <div class="p-mod">MOD 15 - REV. 05 del 05/06/2023</div>
+  <div class="p-nome"><div class="p-nome-txt">${d.nomeComm||''}</div></div>
+  <div class="p-loghi">${loghiHTML}</div>
+
+  <div class="p-sec">Dati del Produttore</div>
+  <div class="p-row"><div class="p-lbl">Stabilimento di produzione</div><div class="p-val">${indirizzo} - ${ce}${bioLine}</div></div>
+  <div class="p-row"><div class="p-lbl">Segnalazioni e reclami</div><div class="p-val">${imp['s-reclami']||''}</div></div>
+
+  ${prodSrc ? `<div class="p-sec">Immagine di Presentazione</div><div class="p-img-sec"><img src="${prodSrc}" alt="prodotto"></div>` : ''}
+
+  <div class="p-sec">Caratteristiche del Prodotto</div>
+  <div class="p-row"><div class="p-lbl">Denominazione di vendita</div><div class="p-val"><strong>${d.denominazione||''}</strong></div></div>
+  <div class="p-row"><div class="p-lbl">Codice articolo</div><div class="p-val">${d.codice||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Codice EAN</div><div class="p-val">${d.ean||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Ingredienti</div><div class="p-val">${d.ingredienti||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Tipologia / Stato</div><div class="p-val">${d.tipologia||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Modalità di consumo</div><div class="p-val">${d.consumo||''}</div></div>
+  <div class="p-row"><div class="p-lbl">${cfg.scadenza||'Termine Minimo di Conservazione'}</div><div class="p-val">${d.scadenza||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Modalità di conservazione</div><div class="p-val">${d.conservazione||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Identificativo lotto</div><div class="p-val">${d.lotto||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Specifiche di lavorazione</div><div class="p-val">${d.lavorazione||''}</div></div>
+
+  <div class="p-sec">Confezionamento ed Imballo</div>
+  <div class="p-row"><div class="p-lbl">Peso</div><div class="p-val">${d.peso||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Confezione</div><div class="p-val">${d.confezione||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Imballo</div><div class="p-val">${d.imballo||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Palletizzazione</div><div class="p-val">${d.palletizzazione||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Colli × pallet</div><div class="p-val">${d.colliPallet||''}</div></div>
+
+  <div class="p-sec">Informazioni Nutrizionali per 100 g</div>
+  <table class="p-tbl" style="width:100%">
+    <thead><tr><th style="width:45%">Nutriente</th><th style="width:27%">Valore</th><th>UM</th></tr></thead>
+    <tbody>
+      <tr><td>Valore energetico</td><td>${d.nutri?.energia||''}</td><td>kJ/kcal</td></tr>
+      <tr><td>Grassi</td><td>${d.nutri?.grassi||''}</td><td>g</td></tr>
+      <tr><td style="padding-left:14px">di cui acidi grassi saturi</td><td>${d.nutri?.saturi||''}</td><td>g</td></tr>
+      <tr><td>Carboidrati</td><td>${d.nutri?.carbo||''}</td><td>g</td></tr>
+      <tr><td style="padding-left:14px">di cui zuccheri</td><td>${d.nutri?.zuccheri||''}</td><td>g</td></tr>
+      <tr><td>Proteine</td><td>${d.nutri?.proteine||''}</td><td>g</td></tr>
+      <tr><td>Sale (Cloruro di sodio)</td><td>${d.nutri?.sale||''}</td><td>g</td></tr>
+    </tbody>
+  </table>
+
+  <div class="p-sec">Caratteristiche Microbiologiche e Chimiche</div>
+  <table class="p-tbl" style="width:100%">
+    <thead><tr><th style="width:38%">Parametro</th><th style="width:20%">Unità di misura</th><th>Limiti e valori guida</th></tr></thead>
+    <tbody>${microR}</tbody>
+  </table>
+
+  <div class="p-sec">Allergeni / OGM</div>
+  <div class="p-row"><div class="p-lbl">Contiene</div><div class="p-val">${d.contiene||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Può contenere</div><div class="p-val">${d.puoContenere||''}</div></div>
+  <div class="p-row"><div class="p-lbl">Cross Contamination</div><div class="p-val">${d.cross||''}</div></div>
+  <div class="p-row"><div class="p-lbl">OGM</div><div class="p-val">${d.ogm||''}</div></div>
+
+  <div class="p-sec">Riferimenti Normativi</div>
+  <div class="p-row"><div class="p-lbl">Riferimenti</div><div class="p-val">${d.rifNorm||''}</div></div>
+
+  <div class="p-footer">
+    <div>Revisione N° <strong>${d.revN||'—'}</strong> &nbsp; del <strong>${d.revData?new Date(d.revData+'T00:00:00').toLocaleDateString('it-IT'):'—'}</strong></div>
+    <div>Firma: <strong>${d.firma||''}</strong></div>
+  </div>`;
+}
+
+async function scaricaPDF() {
+  // Try current form's saved name, or archive preview name
+  const scheda = id_corrente ? schede.find(x => x.id === id_corrente) : null;
+  const nome = scheda?.nomeFile || window._anteprimaNome;
+  if(!nome) {
+    toast('Salva prima la scheda per definire il nome del file', true);
+    return;
+  }
+  toast('Generazione PDF in corso…');
+  await _exportPDF(nome);
+}
+
+async function scaricaPDFAuto(nome) {
+  const overlay = document.getElementById('pdf-overlay');
+  const wasOpen = overlay.classList.contains('open');
+  overlay.style.cssText = 'display:block;position:fixed;left:-9999px;top:0;width:900px;opacity:0;pointer-events:none';
+  await _exportPDF(nome);
+  if(!wasOpen) overlay.style.cssText = '';
+  else overlay.style.cssText = '';
+}
+
+async function _exportPDF(nome) {
+  const el = document.getElementById('scheda-pdf');
+  try {
+    await new Promise(r => setTimeout(r,200));
+    const canvas = await html2canvas(el, {scale:2, useCORS:true, backgroundColor:'#fff'});
+    const {jsPDF} = window.jspdf;
+    const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+    const pw = 210, ph = 297;
+    const scale = canvas.width / pw;
+    const pagePixH = Math.floor(ph * scale);
+
+    // Smart pagination: break at section headers
+    const bars = el.querySelectorAll('.p-sec,.p-topbar,.p-title,.p-mod,.p-nome,.p-loghi,.p-footer');
+    const breaks = new Set([0]);
+    const elRect = el.getBoundingClientRect();
+    bars.forEach(b => {
+      const top = b.getBoundingClientRect().top - elRect.top;
+      breaks.add(Math.max(0, Math.floor(top * 2) - 2));
+    });
+    breaks.add(canvas.height);
+    const bpArr = [...breaks].sort((a,b) => a-b);
+
+    let offset = 0, first = true;
+    while(offset < canvas.height) {
+      let end = offset + pagePixH;
+      if(end >= canvas.height) { end = canvas.height; }
+      else {
+        let best = end;
+        for(const bp of bpArr) { if(bp > offset && bp <= end) best = bp; }
+        end = best;
+      }
+      const h = end - offset;
+      if(h <= 0) break;
+      const pc = document.createElement('canvas');
+      pc.width = canvas.width; pc.height = h;
+      pc.getContext('2d').drawImage(canvas, 0, -offset);
+      if(!first) pdf.addPage();
+      pdf.addImage(pc.toDataURL('image/jpeg',.92), 'JPEG', 0, 0, pw, h * pw / canvas.width);
+      first = false; offset = end;
+    }
+    pdf.save(nome+'.pdf');
+    toast('PDF scaricato ✓');
+  } catch(e) { toast('Errore PDF: '+e.message, true); console.error(e); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+function togSec(hdr) {
+  const body = hdr.nextElementSibling;
+  const ch = hdr.querySelector('.chevron');
+  body.classList.toggle('collapsed');
+  if(ch) ch.classList.toggle('open');
+}
+
+function apriModal(id) { document.getElementById(id).classList.add('open'); }
+function chiudiModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg, isErr=false) {
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast' + (isErr?' err':'');
+  t.innerHTML = `<span>${isErr?'⚠':'✓'}</span>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3400);
+}
+
+function mostraBanner(msg) {
+  const b = document.getElementById('banner');
+  b.textContent = msg;
+  b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 3500);
+}
+
+function initAutoResize() {
+  document.querySelectorAll('.section-body textarea').forEach(el => {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+    if(!el.dataset.ar) {
+      el.dataset.ar = '1';
+      el.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+      });
+    }
+  });
+}
+
+function g(id) { const el=document.getElementById(id); return el?el.value:''; }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+caricaDati();
+renderTipoGrid();
+aggiornaReadonly();
+</script>
+</body>
+</html>
