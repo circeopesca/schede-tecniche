@@ -1139,7 +1139,7 @@ function renderPDF(d) {
   // Loghi
   const loghiHTML = [0,1,2,3].map(i => {
     const src = imgs[`logo${i}`] || (d.imgs && d.imgs[`logo${i}`]);
-    return `<div class="p-logo-box">${src?`<img src="${src}" alt="">`:'<span style="font-size:6pt;color:#ccc">—</span>'}</div>`;
+    return src ? `<div class="p-logo-box"><img src="${src}" alt=""></div>` : '';
   }).join('');
 
   // Immagine prodotto
@@ -1153,7 +1153,7 @@ function renderPDF(d) {
   <div class="p-title"><div class="p-title-txt">SCHEDA TECNICA di PRODOTTO</div></div>
   <div class="p-mod">MOD 15 - REV. 05 del 05/06/2023</div>
   <div class="p-nome"><div class="p-nome-txt">${d.nomeComm||''}</div></div>
-  <div class="p-loghi">${loghiHTML}</div>
+  ${loghiHTML ? `<div class="p-loghi">${loghiHTML}</div>` : ''}
 
   <div class="p-sec">Dati del Produttore</div>
   <div class="p-row"><div class="p-lbl">Stabilimento di produzione</div><div class="p-val">${indirizzo} - ${ce}${bioLine}</div></div>
