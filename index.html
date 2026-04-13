@@ -965,7 +965,36 @@ function leggiJSON(file) {
   r.readAsText(file);
 }
 
-function importaNuova() { chiudiModal('modal-import'); apriForm(imp_data.type, null, {...imp_data, id:null}); toast('Importato come nuova scheda'); }
+function importaNuova() {
+  chiudiModal('modal-import');
+  // Copia i dati e azzera i campi specifici del prodotto
+  const base = {...imp_data, id:null};
+  // Campi specifici del prodotto
+  base.nomeComm = '';
+  base.denominazione = '';
+  base.codice = '';
+  base.ean = '';
+  base.ingredienti = '';
+  base.lavorazione = '';
+  // Immagine e loghi
+  base.imgs = {prodimg:null, logo0:null, logo1:null, logo2:null, logo3:null};
+  // Confezionamento e imballo
+  base.peso = '';
+  base.confezione = '';
+  base.imballo = '';
+  base.palletizzazione = '';
+  base.colliPallet = '';
+  // Valori nutrizionali
+  base.nutri = { energia:'', grassi:'', saturi:'', carbo:'', zuccheri:'', proteine:'', sale:'' };
+  // Revisione
+  base.revN = '';
+  base.revData = '';
+  base.firma = '';
+  // Nome file (nuova scheda)
+  base.nomeFile = '';
+  apriForm(imp_data.type, null, base);
+  toast('Importato come nuova base — campi specifici azzerati');
+}
 function importaRevisiona() {
   chiudiModal('modal-import');
   const ex = schede.find(x=>x.id===imp_data.id);
