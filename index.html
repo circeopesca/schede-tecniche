@@ -52,9 +52,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .sidebar{background:var(--navy-mid);color:#fff;padding:16px 0;display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 60px);position:sticky;top:60px}
 .sb-section{padding:0 12px 12px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:6px}
 .sb-label{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px;padding-top:8px}
-.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:var(--radius-sm);background:none;border:none;color:rgba(255,255,255,.72);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.sb-btn{display:flex;align-items:center;gap:11px;width:100%;padding:9px 11px;border-radius:var(--radius-sm);background:none;border:none;color:rgba(255,255,255,.72);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
 .sb-btn:hover{background:rgba(255,255,255,.07);color:#fff}
 .sb-btn.active{background:var(--teal);color:#fff}
+.sb-btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.85}
+.sb-btn.active svg,.sb-btn:hover svg{opacity:1}
 
 /* ── MAIN ── */
 .main{padding:28px 34px;overflow-y:auto}
@@ -103,7 +105,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .field input,.field textarea,.field select{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark);background:#fff;transition:border-color .15s;width:100%}
 .field input:focus,.field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,.1)}
 .field input[readonly]{background:var(--cream);color:var(--text-mid);cursor:default}
+.field-err{border-color:var(--danger)!important;background:rgba(231,111,81,.05)!important;animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
 .field textarea{resize:none;overflow:hidden;min-height:36px}
+
+/* Autocomplete articolo */
+.ac-wrap{position:relative}
+.ac-row{display:flex;gap:6px;align-items:stretch}
+.ac-row input{flex:1}
+.ac-clear{flex-shrink:0;width:34px;border:1.5px solid var(--border);background:#fff;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-light);font-size:14px;transition:all .15s;display:none;align-items:center;justify-content:center}
+.ac-clear.show{display:inline-flex}
+.ac-clear:hover{color:var(--danger);border-color:var(--danger)}
+.ac-list{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);max-height:280px;overflow-y:auto;z-index:60;box-shadow:0 8px 24px rgba(13,27,42,.12);display:none}
+.ac-list.open{display:block}
+.ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--cream-dark);font-size:12px}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.active{background:var(--cream)}
+.ac-item .ac-cod{font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;font-size:11px}
+.ac-item .ac-desc{color:var(--text-mid);margin-top:2px}
+.ac-item .ac-ean{color:var(--text-light);font-size:10px;margin-top:1px;font-family:'DM Mono',monospace}
+.ac-empty{padding:10px 12px;font-size:12px;color:var(--text-light)}
+.ac-empty .ac-free-btn{display:block;margin-top:6px;background:var(--gold);color:var(--navy);padding:6px 10px;border-radius:5px;border:none;cursor:pointer;font-weight:600;font-size:11px;width:100%;text-align:left}
+.ac-empty .ac-free-btn:hover{background:var(--gold-dark);color:#fff}
+.ac-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-top:6px}
+.ac-chip.linked{background:rgba(42,157,143,.12);color:#1f7a52;border:1px solid rgba(42,157,143,.4)}
+.ac-chip.libero{background:rgba(233,196,106,.25);color:#8a6a1f;border:1px solid var(--gold-dark)}
+.ac-chip .dot{width:6px;height:6px;border-radius:50%}
+.ac-chip.linked .dot{background:#2a9d6a}
+.ac-chip.libero .dot{background:var(--gold-dark)}
+
+/* Archivio: riga in attesa di approvazione */
+.arch-tbl tr.row-pending td{background:rgba(233,196,106,.10)}
+.arch-tbl tr.row-pending:hover td{background:rgba(233,196,106,.18)}
+.row-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.row-badge.pending{background:var(--gold);color:var(--navy)}
 
 /* ── IMG DROP ── */
 .img-drop{border:2px dashed var(--border);border-radius:var(--radius-sm);background:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:center}
@@ -294,10 +329,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 <aside class="sidebar">
   <div class="sb-section">
     <div class="sb-label">Menu</div>
-    <button class="sb-btn active" id="nav-home" onclick="nav('home')">🏠 Dashboard</button>
-    <button class="sb-btn" id="nav-archivio" onclick="nav('archivio')">📋 Archivio Schede</button>
-    <button class="sb-btn" id="nav-nuova" onclick="nav('nuova')">➕ Nuova Scheda</button>
-    <button class="sb-btn" id="nav-impostazioni" onclick="nav('impostazioni')">⚙ Impostazioni</button>
+    <button class="sb-btn active" id="nav-home" onclick="nav('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg><span>Dashboard</span></button>
+    <button class="sb-btn" id="nav-archivio" onclick="nav('archivio')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="4" rx="1"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><line x1="9" y1="13" x2="15" y2="13"/></svg><span>Archivio Schede</span></button>
+    <button class="sb-btn" id="nav-nuova" onclick="nav('nuova')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="12" y2="19"/><line x1="9" y1="16" x2="15" y2="16"/></svg><span>Nuova Scheda</span></button>
+    <button class="sb-btn" id="nav-impostazioni" onclick="nav('impostazioni')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Impostazioni</span></button>
   </div>
 </aside>
 
@@ -398,9 +433,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
       </div>
       <div class="fg">
         <div class="field ff"><label>Nome commerciale prodotto</label><input type="text" id="f-nome-comm" placeholder="Es: FILETTO DI BRANZINO BIOLOGICO SURGELATO IN BLOCCO" style="font-weight:700;text-transform:uppercase"></div>
+        <div class="field ff ac-wrap">
+          <label>Codice Articolo *</label>
+          <div class="ac-row">
+            <input type="text" id="f-codice" autocomplete="off" placeholder="Cerca codice o descrizione…" oninput="acInput(this)" onfocus="acInput(this)" onblur="acBlur()" onkeydown="acKeyDown(event)">
+            <button type="button" class="ac-clear" id="ac-clear" title="Rimuovi collegamento articolo" onclick="acClear()">✕</button>
+          </div>
+          <div class="ac-list" id="ac-list"></div>
+          <div id="ac-status"></div>
+        </div>
         <div class="field ff"><label>Denominazione di vendita *</label><input type="text" id="f-denominazione" placeholder="Es: Filetti di branzino biologico surgelati in blocco"></div>
-        <div class="field"><label>Codice Articolo</label><input type="text" id="f-codice"></div>
-        <div class="field"><label>Codice EAN</label><input type="text" id="f-ean"></div>
+        <div class="field ff"><label>Codice EAN</label><input type="text" id="f-ean"></div>
         <div class="field ff"><label>Ingredienti</label><textarea id="f-ingredienti" placeholder="Lista ingredienti in ordine decrescente di peso..."></textarea></div>
         <div class="field ff"><label>Tipologia / Stato</label><input type="text" id="f-tipologia" placeholder="Es: Surgelato / Intero eviscerato"></div>
         <div class="field ff"><label>Modalità di consumo</label><input type="text" id="f-consumo" placeholder="Es: Previa cottura"></div>
@@ -652,6 +695,13 @@ let tipo_corrente = null;
 let id_corrente = null;
 let del_target = null;
 let imp_data = null;
+
+// Articolo selezionato dall'anagrafica (null se libero o non scelto)
+let articoloCorrente = null;     // {id, codice, descrizione, ean}
+let articoloLibero = false;      // true quando l'utente compila manualmente
+let _acTimer = null;
+let _acItems = [];
+let _acIdx = -1;
 let imgs = {prodimg:null,logo0:null,logo1:null,logo2:null,logo3:null};
 
 const DEFAULTS_IMP = {
@@ -735,8 +785,21 @@ function nav(id) {
   if(btn) btn.classList.add('active');
   const main = document.querySelector('.main');
   if(main) main.scrollTop = 0;
-  if(id === 'archivio') renderArchivio();
+  if(id === 'archivio') aggiornaArchivio();
   if(id === 'nuova') renderTipoGrid();
+}
+
+async function aggiornaArchivio() {
+  renderArchivio();
+  bloccaSchermo('Caricamento archivio…');
+  try {
+    const search = (document.getElementById('arc-search')||{}).value || '';
+    const tipologia = (document.getElementById('arc-tipologia')||{}).value || '';
+    await ricaricaSchede({search, tipologia});
+    renderTabellaArchivio();
+  } finally {
+    sbloccaSchermo();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -822,6 +885,197 @@ function svuotaForm() {
   const ogm = document.getElementById('f-ogm');
   if(ogm) ogm.value = "In accordo con i Regolamenti (CE) n. 1829/2003 e (CE) 1830/2003 il prodotto non richiede etichettatura supplementare";
   document.querySelectorAll('[data-mv]').forEach(el => el.value = '');
+  acReset();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTOCOMPLETE ARTICOLI
+// ═══════════════════════════════════════════════════════════════════════════════
+function acReset() {
+  articoloCorrente = null;
+  articoloLibero = false;
+  _acItems = []; _acIdx = -1;
+  const list = document.getElementById('ac-list');
+  if(list) { list.innerHTML = ''; list.classList.remove('open'); }
+  const clr = document.getElementById('ac-clear'); if(clr) clr.classList.remove('show');
+  acDenLock(false);
+  acAggiornaStato();
+}
+
+function acDenLock(lock) {
+  const den = document.getElementById('f-denominazione');
+  const ean = document.getElementById('f-ean');
+  if(den) {
+    if(lock) { den.setAttribute('readonly','readonly'); den.title = 'Campo bloccato — proviene dall\'anagrafica articoli'; }
+    else { den.removeAttribute('readonly'); den.title = ''; }
+  }
+  if(ean) {
+    if(lock) { ean.setAttribute('readonly','readonly'); ean.title = 'Campo bloccato — proviene dall\'anagrafica articoli'; }
+    else { ean.removeAttribute('readonly'); ean.title = ''; }
+  }
+}
+
+function acAggiornaStato() {
+  const st = document.getElementById('ac-status');
+  if(!st) return;
+  if(articoloCorrente) {
+    st.innerHTML = `<span class="ac-chip linked"><span class="dot"></span>Articolo da anagrafica</span>`;
+  } else if(articoloLibero) {
+    st.innerHTML = `<span class="ac-chip libero"><span class="dot"></span>In attesa di approvazione</span>`;
+  } else {
+    st.innerHTML = '';
+  }
+}
+
+function acInput(inp) {
+  // Se l'utente modifica dopo aver selezionato, rompiamo il collegamento
+  if(articoloCorrente && inp.value.trim() !== articoloCorrente.codice) {
+    articoloCorrente = null;
+    document.getElementById('ac-clear').classList.remove('show');
+    acDenLock(false);
+    acAggiornaStato();
+  }
+  const q = inp.value.trim();
+  clearTimeout(_acTimer);
+  _acTimer = setTimeout(() => acFetch(q), 220);
+}
+
+async function acFetch(q) {
+  const list = document.getElementById('ac-list');
+  if(!list) return;
+  if(q.length < 1) { list.innerHTML = ''; list.classList.remove('open'); _acItems = []; return; }
+  try {
+    const r = await fetch(`${API_BASE}/api/articoli?search=${encodeURIComponent(q)}&limit=15`);
+    const data = await r.json();
+    _acItems = data.items || [];
+    _acIdx = -1;
+    if(_acItems.length === 0) {
+      list.innerHTML = `<div class="ac-empty">
+        Nessun articolo trovato in anagrafica.
+        <button class="ac-free-btn" onclick="acFreeMode()">+ Usa "${q.replace(/"/g,'&quot;')}" come articolo libero</button>
+      </div>`;
+    } else {
+      list.innerHTML = _acItems.map((it,i) => `
+        <div class="ac-item" data-i="${i}" onmousedown="acSelect(${i})">
+          <div class="ac-cod">${it.codice}</div>
+          <div class="ac-desc">${it.descrizione||'—'}</div>
+          ${it.ean ? `<div class="ac-ean">EAN ${it.ean}</div>` : ''}
+        </div>`).join('');
+    }
+    list.classList.add('open');
+  } catch(e) {
+    console.error('autocomplete error', e);
+  }
+}
+
+function acSelect(i) {
+  const it = _acItems[i]; if(!it) return;
+  articoloCorrente = it;
+  articoloLibero = false;
+  document.getElementById('f-codice').value = it.codice;
+  const den = document.getElementById('f-denominazione');
+  if(den) den.value = it.descrizione || '';
+  const ean = document.getElementById('f-ean');
+  if(ean) ean.value = it.ean || '';
+  document.getElementById('ac-list').classList.remove('open');
+  document.getElementById('ac-clear').classList.add('show');
+  acDenLock(true);
+  acAggiornaStato();
+}
+
+function acFreeMode() {
+  articoloCorrente = null;
+  articoloLibero = true;
+  document.getElementById('ac-list').classList.remove('open');
+  document.getElementById('ac-clear').classList.add('show');
+  acDenLock(false);
+  acAggiornaStato();
+  document.getElementById('f-denominazione').focus();
+}
+
+function acClear() {
+  articoloCorrente = null;
+  articoloLibero = false;
+  document.getElementById('f-codice').value = '';
+  document.getElementById('f-denominazione').value = '';
+  document.getElementById('f-ean').value = '';
+  document.getElementById('ac-clear').classList.remove('show');
+  document.getElementById('ac-list').classList.remove('open');
+  acDenLock(false);
+  acAggiornaStato();
+  document.getElementById('f-codice').focus();
+}
+
+function acBlur() {
+  // Chiudi la lista dopo un piccolo delay (per consentire onmousedown sui risultati)
+  setTimeout(() => {
+    acTrySelectExact();
+    const list = document.getElementById('ac-list');
+    if(list) list.classList.remove('open');
+  }, 150);
+}
+
+// Se ciò che è stato digitato corrisponde esattamente al codice o alla descrizione
+// di un item in lista, seleziona automaticamente quell'articolo (per Tab/blur).
+function acTrySelectExact() {
+  if(articoloCorrente) return;
+  const v = (document.getElementById('f-codice').value || '').trim().toLowerCase();
+  if(!v || !_acItems.length) return;
+  const idx = _acItems.findIndex(it =>
+    (it.codice || '').toLowerCase() === v ||
+    (it.descrizione || '').toLowerCase() === v
+  );
+  if(idx >= 0) acSelect(idx);
+}
+
+// Ricerca un codice in anagrafica e aggiorna lo stato di conseguenza.
+// Usata quando si carica una scheda esistente o si importa un JSON senza articoloId.
+async function acRistoraArticolo(codice, dati) {
+  if(!codice) { acAggiornaStato(); return; }
+  try {
+    const r = await fetch(`${API_BASE}/api/articoli?search=${encodeURIComponent(codice)}&limit=10`);
+    const data = await r.json();
+    const items = data.items || [];
+    const match = items.find(it => (it.codice||'').toLowerCase() === String(codice).toLowerCase());
+    if(match) {
+      _acItems = items;
+      acSelect(items.indexOf(match));
+    } else {
+      // Non trovato in anagrafica → libero / da approvare
+      articoloCorrente = null;
+      articoloLibero = true;
+      acDenLock(false);
+      const clr = document.getElementById('ac-clear'); if(clr) clr.classList.add('show');
+      acAggiornaStato();
+    }
+  } catch(e) {
+    console.error('ristora articolo error', e);
+    acAggiornaStato();
+  }
+}
+
+function acKeyDown(ev) {
+  if(ev.key === 'Tab' || ev.key === 'Enter') {
+    if(_acItems.length && !articoloCorrente) {
+      // Prova match esatto, altrimenti seleziona il primo se la dropdown è aperta
+      const v = (ev.target.value||'').trim().toLowerCase();
+      const exact = _acItems.findIndex(it =>
+        (it.codice||'').toLowerCase() === v ||
+        (it.descrizione||'').toLowerCase() === v
+      );
+      const list = document.getElementById('ac-list');
+      const open = list && list.classList.contains('open');
+      if(exact >= 0) {
+        acSelect(exact);
+        if(ev.key === 'Enter') ev.preventDefault();
+      } else if(open && ev.key === 'Enter' && _acItems.length === 1) {
+        acSelect(0);
+        ev.preventDefault();
+      }
+    }
+  } else if(ev.key === 'Escape') {
+    document.getElementById('ac-list').classList.remove('open');
+  }
 }
 
 function popola(d) {
@@ -862,6 +1116,19 @@ function popola(d) {
   }
   // Immagini
   if(d.imgs) Object.entries(d.imgs).forEach(([k,b64]) => { if(b64) setSlot(k,b64); });
+  // Stato articolo
+  if(d.articoloId) {
+    articoloCorrente = { id: d.articoloId, codice: d.codice||'', descrizione: d.denominazione||'', ean: d.ean||'' };
+    articoloLibero = false;
+    const clr = document.getElementById('ac-clear'); if(clr) clr.classList.add('show');
+    acDenLock(true);
+    acAggiornaStato();
+  } else if(d.codice) {
+    // Nessun link salvato ma c'è un codice → cerca in anagrafica
+    acRistoraArticolo(d.codice, d);
+  } else {
+    acAggiornaStato();
+  }
   setTimeout(initAutoResize, 80);
 }
 
@@ -887,6 +1154,8 @@ function raccogliForm() {
     cross: g('f-cross'), ogm: g('f-ogm'), rifNorm: g('f-rif-norm'),
     revN: g('f-rev-n'), revData: g('f-rev-data'),
     responsabile: g('f-responsabile'),
+    articoloId: articoloCorrente ? articoloCorrente.id : null,
+    articoloLibero: !articoloCorrente && (articoloLibero || !!g('f-codice')),
     recordId: id_corrente || null,
     nutri: { energia:g('n-energia'),grassi:g('n-grassi'),saturi:g('n-saturi'),
       carbo:g('n-carbo'),zuccheri:g('n-zuccheri'),proteine:g('n-proteine'),sale:g('n-sale') },
@@ -899,11 +1168,99 @@ function raccogliForm() {
 // SALVATAGGIO
 // ═══════════════════════════════════════════════════════════════════════════════
 function chiediNome() {
+  rimuoviBannerInline();
+  const missing = validateForm();
+  if(missing.length) {
+    const labels = missing.slice(0,4).map(m=>m.label).join(', ');
+    const more = missing.length > 4 ? ` (+${missing.length-4} altri)` : '';
+    mostraBannerInline(missing[0].el, `Compilare i campi obbligatori: <strong>${labels}</strong>${more}.`);
+    setTimeout(() => {
+      const banner = document.getElementById('inline-validation-banner');
+      (banner || missing[0].el).scrollIntoView({behavior:'smooth', block:'center'});
+      try { missing[0].el.focus({preventScroll:true}); } catch(e){}
+    }, 60);
+    return;
+  }
   const cod = g('f-codice') || 'SCHEDA';
   const rev = g('f-rev-n') || '0';
   const data = g('f-rev-data') || new Date().toISOString().slice(0,10);
   document.getElementById('nome-file').value = `${cod}.${rev}_${data}`;
   apriModal('modal-nome');
+}
+
+function mostraBannerInline(targetEl, html) {
+  rimuoviBannerInline();
+  if(!targetEl) return;
+  const banner = document.createElement('div');
+  banner.id = 'inline-validation-banner';
+  banner.style.cssText = 'background:rgba(231,111,81,.12);border:1.5px solid var(--danger);color:#9a3a23;padding:10px 14px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px';
+  banner.innerHTML = `<span style="font-size:16px;line-height:1">⚠</span><span>${html}</span>`;
+  // Inseriscilo sopra al contenitore .field (o sopra il body della section più vicina per riga micro)
+  const container = targetEl.closest('.field') || targetEl.closest('tr') || targetEl;
+  if(container && container.parentNode) container.parentNode.insertBefore(banner, container);
+}
+
+function rimuoviBannerInline() {
+  const b = document.getElementById('inline-validation-banner');
+  if(b) b.remove();
+}
+
+// Verifica che tutti i campi siano compilati. Restituisce array {el, label}
+function validateForm() {
+  const required = [
+    ['f-nome-comm','Nome commerciale'],
+    ['f-codice','Codice articolo'],
+    ['f-denominazione','Denominazione di vendita'],
+    ['f-ingredienti','Ingredienti'],
+    ['f-tipologia','Tipologia / Stato'],
+    ['f-consumo','Modalità di consumo'],
+    ['f-scadenza','Scadenza / TMC / Shelf life'],
+    ['f-conservazione','Modalità di conservazione'],
+    ['f-lotto','Lotto'],
+    ['f-lavorazione','Lavorazione'],
+    ['f-peso','Peso'],
+    ['f-confezione','Confezione'],
+    ['f-imballo','Imballo'],
+    ['f-palletizzazione','Palletizzazione'],
+    ['f-colli-pallet','Colli per pallet'],
+    ['n-energia','Energia (kJ/kcal)'],
+    ['n-grassi','Grassi'],
+    ['n-saturi','Acidi grassi saturi'],
+    ['n-carbo','Carboidrati'],
+    ['n-zuccheri','Zuccheri'],
+    ['n-proteine','Proteine'],
+    ['n-sale','Sale'],
+    ['f-contiene','Contiene (allergeni)'],
+    ['f-puo-contenere','Può contenere'],
+    ['f-cross','Cross contamination'],
+    ['f-ogm','OGM'],
+    ['f-rif-norm','Riferimenti normativi'],
+    ['f-rev-n','N° revisione'],
+    ['f-rev-data','Data revisione'],
+    ['f-responsabile','Responsabile revisione']
+  ];
+  document.querySelectorAll('.field-err').forEach(el => el.classList.remove('field-err'));
+  const missing = [];
+  required.forEach(([id,label]) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(!(el.value||'').trim()) {
+      el.classList.add('field-err');
+      missing.push({el, label});
+    }
+  });
+  // Microbiologici: ogni parametro predefinito deve avere un valore
+  document.querySelectorAll('#micro-body tr').forEach(tr => {
+    const param = tr.querySelector('[data-mp]')?.value?.trim();
+    if(!param) return;
+    const valEl = tr.querySelector('[data-mv]');
+    if(!valEl) return;
+    if(!(valEl.value||'').trim()) {
+      valEl.classList.add('field-err');
+      missing.push({el:valEl, label:'Microbio: '+param});
+    }
+  });
+  return missing;
 }
 
 async function confermaSalva() {
@@ -925,6 +1282,7 @@ async function confermaSalva() {
       n_revisione: dati.revN || null,
       data_revisione: dati.revData || null,
       responsabile_revisione: dati.responsabile || '',
+      articolo_id: dati.articoloId || null,
       nome_file: nome,
       pdf_base64: pdfBase64,
       json_data: dati
@@ -1056,16 +1414,24 @@ function renderArchivio() {
         <option value="">Tutte le tipologie</option>
         ${tipologieOpts}
       </select>
-      <button class="btn btn-outline btn-sm" onclick="filtraArchivio(true)">↻ Aggiorna</button>
+      <select id="arc-stato"
+        style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;background:#fff;min-width:170px">
+        <option value="">Tutti gli stati</option>
+        <option value="approvato">✓ Validati</option>
+        <option value="da-approvare">⚠ Da approvare</option>
+      </select>
+      <button class="row-action act-rev" data-tip="Aggiorna" style="position:relative" onclick="filtraArchivio(true)"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg></button>
     </div>
     <div id="archivio-table"></div>`;
   const search = document.getElementById('arc-search');
   const sel = document.getElementById('arc-tipologia');
+  const stato = document.getElementById('arc-stato');
   if(search) search.addEventListener('input', () => {
     clearTimeout(_arcSearchTimer);
     _arcSearchTimer = setTimeout(() => filtraArchivio(), 300);
   });
   if(sel) sel.addEventListener('change', () => filtraArchivio());
+  if(stato) stato.addEventListener('change', () => renderTabellaArchivio());
   renderTabellaArchivio();
 }
 
@@ -1076,24 +1442,40 @@ async function filtraArchivio(force=false) {
   renderTabellaArchivio();
 }
 
+function isSchedaLibera(s) {
+  // Una scheda è "libera" (da approvare) se non ha link articolo
+  return !s.articolo || !Array.isArray(s.articolo) || s.articolo.length === 0;
+}
+
 function renderTabellaArchivio() {
   const tbl = document.getElementById('archivio-table');
   if(!tbl) return;
-  if(!schede.length) {
-    tbl.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nessuna scheda</div><div class="empty-sub">Crea o importa la tua prima scheda tecnica</div></div>`;
+  const statoFilter = (document.getElementById('arc-stato')||{}).value || '';
+  const items = schede.filter(s => {
+    if(statoFilter === 'approvato') return !isSchedaLibera(s);
+    if(statoFilter === 'da-approvare') return isSchedaLibera(s);
+    return true;
+  });
+  if(!items.length) {
+    tbl.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nessuna scheda</div><div class="empty-sub">Nessun risultato per i filtri attuali</div></div>`;
     return;
   }
   const fmtData = s => {
     if(!s) return '—';
     try { return new Date(s).toLocaleDateString('it-IT'); } catch(e){ return s; }
   };
+  const lookup1 = v => Array.isArray(v) ? (v[0]||'') : (v||'');
   tbl.innerHTML = `<table class="arch-tbl">
     <thead><tr>
       <th>Codice</th><th>Descrizione</th><th>Tipologia</th><th>Rev.</th><th>Data rev.</th><th>Responsabile</th><th>Salvata il</th><th>Azioni</th>
     </tr></thead>
-    <tbody>${schede.map(s => `<tr>
-      <td><code style="font-size:11px">${s.Codice||'—'}</code></td>
-      <td style="white-space:normal;min-width:180px"><strong>${s.Descrizione||'—'}</strong></td>
+    <tbody>${items.map(s => {
+      const lib = isSchedaLibera(s);
+      const cod = lookup1(s.codice_articolo_lookup) || s.Codice || '—';
+      const desc = lookup1(s.descrizione_articolo_lookup) || s.Descrizione || '—';
+      return `<tr class="${lib?'row-pending':''}">
+      <td><code style="font-size:11px">${cod}</code>${lib?'<span class="row-badge pending" title="Articolo non in anagrafica — da approvare">Da approvare</span>':''}</td>
+      <td style="white-space:normal;min-width:180px"><strong>${desc}</strong></td>
       <td style="font-size:11px">${s.Tipologia||'—'}</td>
       <td style="font-size:11px">${s.n_revisione||'—'}</td>
       <td style="font-size:11px">${fmtData(s.data_revisione)}</td>
@@ -1106,7 +1488,7 @@ function renderTabellaArchivio() {
         <button class="row-action act-dl" data-tip="Scarica JSON" onclick="scaricaJSON('${s.id}')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
         <button class="row-action act-del" data-tip="Elimina" onclick="chiediElimina('${s.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
-    </tr>`).join('')}
+    </tr>`; }).join('')}
     </tbody></table>`;
 }
 
@@ -1219,13 +1601,17 @@ function importaNuova() {
 }
 function importaRevisiona() {
   chiudiModal('modal-import');
-  // Apre il form con i dati importati: il salvataggio (creazione/aggiornamento)
-  // verrà fatto via API quando l'utente clicca "Salva".
-  // Se il JSON ha un recordId esistente lo manteniamo per fare update, altrimenti
-  // lasciamo null per creare un nuovo record.
-  const recId = imp_data.recordId || null;
-  apriForm(imp_data.type, recId, imp_data);
-  toast('Aperto per revisione');
+  // Crea una nuova revisione: forziamo nuovo record (recordId azzerato),
+  // incrementiamo n. revisione e impostiamo data odierna.
+  const dati = {...imp_data};
+  dati.recordId = null;
+  const cur = parseInt((dati.revN||'').toString().replace(/[^0-9]/g,''),10);
+  dati.revN = isNaN(cur) ? '1' : String(cur + 1);
+  dati.revData = new Date().toISOString().slice(0,10);
+  dati.responsabile = '';
+  dati.nomeFile = '';
+  apriForm(dati.type, null, dati);
+  toast(`Nuova revisione N°${dati.revN} pronta — completa e Salva`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1504,12 +1890,38 @@ function g(id) { const el=document.getElementById(id); return el?el.value:''; }
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════════
 caricaDati().then(() => {
-  // Eventuale refresh dell'archivio se è la vista corrente
   const arc = document.getElementById('view-archivio');
   if(arc && arc.classList.contains('active')) renderArchivio();
 });
 renderTipoGrid();
 aggiornaReadonly();
+
+// Rimuove evidenziazione errore + banner inline mentre l'utente compila
+document.addEventListener('input', e => {
+  if(e.target && e.target.classList && e.target.classList.contains('field-err')) {
+    e.target.classList.remove('field-err');
+    rimuoviBannerInline();
+  }
+});
+
+// Auto-refresh archivio quando la tab torna in foreground (es. dopo modifica su Airtable)
+let _archivioLastRefresh = Date.now();
+window.addEventListener('focus', () => {
+  const arc = document.getElementById('view-archivio');
+  if(arc && arc.classList.contains('active') && Date.now() - _archivioLastRefresh > 3000) {
+    _archivioLastRefresh = Date.now();
+    filtraArchivio();
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') {
+    const arc = document.getElementById('view-archivio');
+    if(arc && arc.classList.contains('active') && Date.now() - _archivioLastRefresh > 3000) {
+      _archivioLastRefresh = Date.now();
+      filtraArchivio();
+    }
+  }
+});
 </script>
 </body>
 </html>
