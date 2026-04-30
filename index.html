@@ -31,17 +31,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .tb-actions{display:flex;gap:8px;align-items:center}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .18s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:var(--text-mid);border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(13,27,42,.08)}
 .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.15)}
-.btn-ghost:hover{background:rgba(255,255,255,.16)}
-.btn-teal{background:var(--teal);color:#fff}
-.btn-teal:hover{background:var(--teal-light);transform:translateY(-1px)}
-.btn-gold{background:var(--gold);color:var(--navy);font-weight:600}
-.btn-gold:hover{background:var(--gold-dark);color:#fff;transform:translateY(-1px)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-danger:hover{opacity:.88}
-.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
-.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-ghost:hover{background:rgba(255,255,255,.16);box-shadow:none}
+.btn-teal:hover{color:var(--teal);border-color:var(--teal);background:rgba(42,157,143,.06)}
+.btn-gold{font-weight:600}
+.btn-gold:hover{color:var(--gold-dark);border-color:var(--gold);background:rgba(233,196,106,.12)}
+.btn-danger:hover{color:var(--danger);border-color:var(--danger);background:rgba(231,111,81,.08)}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);background:rgba(13,27,42,.05)}
 .btn-sm{padding:5px 12px;font-size:12px}
 .btn-xs{padding:3px 9px;font-size:11px}
 
@@ -1297,7 +1295,10 @@ async function confermaSalva() {
     id_corrente = result.recordId;
     await ricaricaSchede();
     sbloccaSchermo();
-    mostraBanner('Dati salvati correttamente', {success:true});
+    const msgOk = (result && result.archiviate > 0)
+      ? 'Scheda tecnica salvata correttamente; la precedente revisione è stata archiviata'
+      : 'Scheda tecnica salvata correttamente';
+    mostraBanner(msgOk, {success:true});
   } catch(e) {
     console.error(e);
     sbloccaSchermo();
