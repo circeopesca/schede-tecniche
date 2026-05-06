@@ -1493,13 +1493,25 @@ function renderTabellaArchivio() {
     </tbody></table>`;
 }
 
+function _extractDriveId(url) {
+  if(!url) return '';
+  const m1 = url.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
+  if(m1) return m1[1];
+  const m2 = url.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if(m2) return m2[1];
+  return '';
+}
+function _jsonId(item) { return _extractDriveId(item?.json_url) || item?.json_file_ID || ''; }
+function _pdfId(item)  { return _extractDriveId(item?.pdf_url)  || item?.pdf_file_ID  || ''; }
+
 async function modificaScheda(recordId) {
   const item = schede.find(s => s.id === recordId);
   if(!item) return;
-  if(!item.json_file_ID) { toast('JSON non disponibile per questa scheda', true); return; }
+  const jid = _jsonId(item);
+  if(!jid) { toast('JSON non disponibile per questa scheda', true); return; }
   bloccaSchermo('Caricamento scheda…');
   try {
-    const r = await fetch(`${API_BASE}/api/file?id=${encodeURIComponent(item.json_file_ID)}&download=1`);
+    const r = await fetch(`${API_BASE}/api/file?id=${encodeURIComponent(jid)}&download=1`);
     if(!r.ok) throw new Error('HTTP ' + r.status);
     const dati = await r.json();
     dati.recordId = recordId;
@@ -1515,8 +1527,9 @@ async function modificaScheda(recordId) {
 
 function scaricaJSON(recordId) {
   const item = schede.find(s => s.id === recordId);
-  if(!item || !item.json_file_ID) { toast('JSON non disponibile', true); return; }
-  window.open(`${API_BASE}/api/file?id=${encodeURIComponent(item.json_file_ID)}&download=1`, '_blank');
+  const jid = _jsonId(item);
+  if(!jid) { toast('JSON non disponibile', true); return; }
+  window.open(`${API_BASE}/api/file?id=${encodeURIComponent(jid)}&download=1`, '_blank');
 }
 
 async function revisionaScheda(recordId) {
@@ -1526,10 +1539,11 @@ async function revisionaScheda(recordId) {
     toast('Articolo da approvare: revisione non consentita finché non viene collegato ad anagrafica', true);
     return;
   }
-  if(!item.json_file_ID) { toast('JSON non disponibile per questa scheda', true); return; }
+  const jid = _jsonId(item);
+  if(!jid) { toast('JSON non disponibile per questa scheda', true); return; }
   bloccaSchermo('Preparazione nuova revisione…');
   try {
-    const r = await fetch(`${API_BASE}/api/file?id=${encodeURIComponent(item.json_file_ID)}&download=1`);
+    const r = await fetch(`${API_BASE}/api/file?id=${encodeURIComponent(jid)}&download=1`);
     if(!r.ok) throw new Error('HTTP ' + r.status);
     const dati = await r.json();
     if(!dati.type || !TIPI[dati.type]) { sbloccaSchermo(); toast('Tipo scheda non riconosciuto', true); return; }
@@ -1671,9 +1685,10 @@ function anteprimaPDF() {
 function anteprima(id) {
   const s = schede.find(x=>x.id===id);
   if(!s) return;
-  if(!s.pdf_file_ID) { toast('PDF non disponibile per questa scheda', true); return; }
+  const pid = _pdfId(s);
+  if(!pid) { toast('PDF non disponibile per questa scheda', true); return; }
   // Apre il PDF originale archiviato su Drive in una nuova tab tramite proxy backend
-  window.open(`${API_BASE}/api/file?id=${encodeURIComponent(s.pdf_file_ID)}`, '_blank');
+  window.open(`${API_BASE}/api/file?id=${encodeURIComponent(pid)}`, '_blank');
 }
 
 function chiudiPDF() { document.getElementById('pdf-overlay').classList.remove('open'); }
