@@ -1446,6 +1446,17 @@ async function filtraArchivio(force=false) {
 
 const ARC_PAGE_SIZE = 10;
 let _arcPage = 1;
+let _arcSort = { col: 'salvata_il', dir: 'desc' };
+function cambiaOrdineArchivio(col) {
+  if(_arcSort.col === col) _arcSort.dir = _arcSort.dir === 'asc' ? 'desc' : 'asc';
+  else { _arcSort.col = col; _arcSort.dir = col === 'salvata_il' ? 'desc' : 'asc'; }
+  _arcPage = 1;
+  renderTabellaArchivio();
+}
+function _sortArrow(col) {
+  if(_arcSort.col !== col) return '<span style="opacity:.3;font-size:10px;margin-left:4px">↕</span>';
+  return `<span style="font-size:10px;margin-left:4px;color:var(--accent,#1a5490)">${_arcSort.dir==='asc'?'↑':'↓'}</span>`;
+}
 function _arcPag(curr, total) {
   if(total <= 1) return '';
   return `<div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px">
@@ -1468,10 +1479,21 @@ function renderTabellaArchivio() {
   const tbl = document.getElementById('archivio-table');
   if(!tbl) return;
   const statoFilter = (document.getElementById('arc-stato')||{}).value || '';
+  const lookup1Pre = v => Array.isArray(v) ? (v[0]||'') : (v||'');
   const itemsAll = schede.filter(s => {
     if(statoFilter === 'approvato') return !isSchedaLibera(s);
     if(statoFilter === 'da-approvare') return isSchedaLibera(s);
     return true;
+  }).slice().sort((a,b) => {
+    let va, vb;
+    if(_arcSort.col === 'codice') {
+      va = (lookup1Pre(a.codice_articolo_lookup) || a.Codice || '').toString().toLowerCase();
+      vb = (lookup1Pre(b.codice_articolo_lookup) || b.Codice || '').toString().toLowerCase();
+    } else { // salvata_il
+      va = a.salvata_il || ''; vb = b.salvata_il || '';
+    }
+    const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+    return _arcSort.dir === 'asc' ? cmp : -cmp;
   });
   if(!itemsAll.length) {
     tbl.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nessuna scheda</div><div class="empty-sub">Nessun risultato per i filtri attuali</div></div>`;
@@ -1488,7 +1510,7 @@ function renderTabellaArchivio() {
   const lookup1 = v => Array.isArray(v) ? (v[0]||'') : (v||'');
   tbl.innerHTML = `<table class="arch-tbl">
     <thead><tr>
-      <th>Codice</th><th>Descrizione</th><th>Tipologia</th><th>Rev.</th><th>Data rev.</th><th>Responsabile</th><th>Salvata il</th><th>Azioni</th>
+      <th style="cursor:pointer;user-select:none" onclick="cambiaOrdineArchivio('codice')">Codice${_sortArrow('codice')}</th><th>Descrizione</th><th>Tipologia</th><th>Rev.</th><th>Data rev.</th><th>Responsabile</th><th style="cursor:pointer;user-select:none" onclick="cambiaOrdineArchivio('salvata_il')">Salvata il${_sortArrow('salvata_il')}</th><th>Azioni</th>
     </tr></thead>
     <tbody>${items.map(s => {
       const lib = isSchedaLibera(s);
