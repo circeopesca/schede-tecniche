@@ -365,7 +365,9 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 
 /* ── SECTIONS INDEX (sticky, nel form) ── */
 .form-shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
-.sez-nav{position:sticky;top:12px;background:#fff;border:1px solid var(--m3-outline-var);border-radius:var(--radius);padding:8px;display:flex;flex-direction:column;gap:2px}
+.sez-nav{position:sticky;top:72px;background:#fff;border:1px solid var(--m3-outline-var);border-radius:var(--radius);padding:8px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 88px);overflow-y:auto}
+.form-sections .section{scroll-margin-top:72px}
+html{scroll-behavior:smooth}
 .sez-nav-lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--m3-on-surface-var);padding:6px 10px}
 .sez-nav a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-pill);font-size:13px;font-weight:700;color:var(--m3-on-surface-var);text-decoration:none}
 .sez-nav a:hover{background:var(--m3-surf-low)}
