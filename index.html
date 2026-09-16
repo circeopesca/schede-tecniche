@@ -1592,6 +1592,8 @@ function esportaJSONDati(dati, nome) {
 let _arcSearchTimer = null;
 let _arcPartizione = 'tutti'; // tutti | bio | conv
 let _arcFiltroStato = 'tutti'; // tutti | attive | attesa
+let _arcTipologia = '';
+let _arcSearch = '';
 
 function _isBioTipo(t) { const s=(t||'').toLowerCase(); return s.startsWith('biologico'); }
 function _isConvTipo(t) { const s=(t||'').toLowerCase(); return s.startsWith('convenzionale'); }
@@ -1603,7 +1605,11 @@ function renderArchivio() {
     if(_arcPartizione === 'bio') return t.isBio;
     if(_arcPartizione === 'conv') return !t.isBio;
     return true;
-  }).map(t => { const lbl = (t.label||'').replace(/—/g,'-'); return `<option value="${lbl}">${lbl}</option>`; }).join('');
+  }).map(t => { const lbl = (t.label||'').replace(/—/g,'-'); return `<option value="${lbl}" ${_arcTipologia===lbl?'selected':''}>${lbl}</option>`; }).join('');
+  // Se il filtro tipologia salvato non è più compatibile con la partizione, reset
+  if(_arcTipologia && !Object.values(TIPI).some(t => (t.label||'').replace(/—/g,'-') === _arcTipologia && (_arcPartizione==='tutti' || (_arcPartizione==='bio'?t.isBio:!t.isBio)))) {
+    _arcTipologia = '';
+  }
   const nBio = schede.filter(s => _isBioTipo(s.Tipologia)).length;
   const nConv = schede.filter(s => _isConvTipo(s.Tipologia)).length;
   const nTot = schede.length;
@@ -1615,40 +1621,53 @@ function renderArchivio() {
         <button class="partizione-btn ${_arcPartizione==='conv'?'active':''}" onclick="setPartizione('conv')"><span class="msy msy-18">set_meal</span>Convenzionale (${nConv})</button>
       </div>
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
-        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:260px;background:var(--m3-surf-low);border:1px solid var(--m3-outline-var);border-radius:4px;padding:8px 12px">
-          <span class="msy" style="color:var(--m3-on-surface-var)">search</span>
-          <input type="text" id="arc-search" placeholder="Codice, descrizione, responsabile…" style="border:none;background:transparent;outline:none;font-size:14px;flex:1;color:var(--m3-on-surface);font-family:inherit">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:260px;background:var(--m3-surf-low);border:1px solid ${_arcSearch?'var(--m3-secondary)':'var(--m3-outline-var)'};border-radius:4px;padding:8px 12px">
+          <span class="msy" style="color:${_arcSearch?'var(--m3-secondary)':'var(--m3-on-surface-var)'}">search</span>
+          <input type="text" id="arc-search" placeholder="Codice, descrizione, responsabile…" value="${_arcSearch.replace(/"/g,'&quot;')}" style="border:none;background:transparent;outline:none;font-size:14px;flex:1;color:var(--m3-on-surface);font-family:inherit">
+          ${_arcSearch?`<button class="row-action" data-tip="Cancella ricerca" style="width:24px;height:24px" onclick="resetSearch()"><span class="msy" style="font-size:16px">close</span></button>`:''}
         </div>
         <span style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--m3-on-surface-var);margin-left:4px">Stato</span>
         <button class="chip-filtro ${_arcFiltroStato==='tutti'?'active':''}" onclick="setFiltroStato('tutti')">Tutti</button>
         <button class="chip-filtro ${_arcFiltroStato==='attive'?'active':''}" onclick="setFiltroStato('attive')">Attive</button>
         <button class="chip-filtro ${_arcFiltroStato==='attesa'?'active':''}" onclick="setFiltroStato('attesa')">Da approvare</button>
-        <select id="arc-tipologia" style="border:1px solid var(--m3-outline-var);background:var(--m3-surf-low);border-radius:4px;padding:8px 10px;font-size:13px;color:var(--m3-on-surface);font-family:inherit">
-          <option value="">Tutte le tipologie</option>
-          ${tipologieOpts}
-        </select>
+        <div style="display:inline-flex;align-items:center;gap:4px">
+          <select id="arc-tipologia" style="border:1px solid ${_arcTipologia?'var(--m3-secondary)':'var(--m3-outline-var)'};background:${_arcTipologia?'var(--m3-secondary-fixed)':'var(--m3-surf-low)'};color:${_arcTipologia?'var(--m3-on-secondary-fixed)':'var(--m3-on-surface)'};border-radius:4px;padding:8px 10px;font-size:13px;font-weight:${_arcTipologia?'600':'400'};font-family:inherit">
+            <option value="">Tutte le tipologie</option>
+            ${tipologieOpts}
+          </select>
+          ${_arcTipologia?`<button class="row-action" data-tip="Rimuovi filtro tipologia" style="width:30px;height:30px" onclick="resetTipologia()"><span class="msy" style="font-size:18px">close</span></button>`:''}
+        </div>
       </div>
       <div id="archivio-table"></div>
     </div>`;
   const search = document.getElementById('arc-search');
   const sel = document.getElementById('arc-tipologia');
-  if(search) search.addEventListener('input', () => {
-    clearTimeout(_arcSearchTimer);
-    _arcSearchTimer = setTimeout(() => filtraArchivio(), 300);
-  });
-  if(sel) sel.addEventListener('change', () => filtraArchivio());
+  if(search) {
+    search.addEventListener('input', () => {
+      _arcSearch = search.value;
+      clearTimeout(_arcSearchTimer);
+      _arcSearchTimer = setTimeout(() => filtraArchivio(), 300);
+    });
+  }
+  if(sel) sel.addEventListener('change', () => { _arcTipologia = sel.value; filtraArchivio(); });
   renderTabellaArchivio();
 }
 
 function setPartizione(p){ _arcPartizione = p; _arcPage = 1; renderArchivio(); }
-function setFiltroStato(s){ _arcFiltroStato = s; _arcPage = 1; renderTabellaArchivio(); }
+function setFiltroStato(s){ _arcFiltroStato = s; _arcPage = 1; renderArchivio(); }
+function resetTipologia(){ _arcTipologia = ''; _arcPage = 1; filtraArchivio(); }
+function resetSearch(){ _arcSearch = ''; _arcPage = 1; filtraArchivio(); }
 
 async function filtraArchivio(force=false) {
-  const search = (document.getElementById('arc-search')||{}).value || '';
-  const tipologia = (document.getElementById('arc-tipologia')||{}).value || '';
   _arcPage = 1;
-  await ricaricaSchede({search, tipologia});
+  const focused = document.activeElement && document.activeElement.id === 'arc-search';
+  const selStart = focused ? document.activeElement.selectionStart : null;
+  await ricaricaSchede({search:_arcSearch, tipologia:_arcTipologia});
   renderArchivio();
+  if(focused) {
+    const s = document.getElementById('arc-search');
+    if(s) { s.focus(); if(selStart != null) s.setSelectionRange(selStart, selStart); }
+  }
 }
 
 const ARC_PAGE_SIZE = 10;
