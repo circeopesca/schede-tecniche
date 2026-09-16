@@ -145,6 +145,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .fg3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
 .ff{grid-column:1/-1}
+.col-stack{display:flex;flex-direction:column;gap:12px}
+.col-stack .field{width:100%}
 
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
 .field label{font-size:13px;font-weight:700;letter-spacing:.01em;text-transform:none;color:var(--m3-on-surface)}
@@ -375,9 +377,12 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .sez-nav-footer{border-top:1px solid var(--m3-outline-var);margin-top:6px;padding:8px 10px;font-size:11px;color:var(--m3-on-surface-var);line-height:1.5}
 
 /* ── CODICE CON PASTIGLIA "collegato" ── */
-.codice-wrap{display:flex;align-items:center;gap:8px;border:1px solid var(--m3-secondary);background:#fff;border-radius:var(--radius-sm);padding:8px 12px}
+.codice-wrap{display:flex;align-items:center;gap:8px;border:1px solid var(--m3-secondary);background:#fff;border-radius:var(--radius-sm);padding:8px 12px;transition:box-shadow .15s}
+.codice-wrap:focus-within{box-shadow:0 0 0 3px rgba(0,88,190,.15)}
 .codice-wrap .msy-inv{color:var(--m3-secondary)}
-.codice-wrap input{border:none;outline:none;font-size:14px;font-weight:700;flex:1;background:transparent;color:var(--m3-on-surface);font-family:inherit;padding:0}
+.codice-wrap input{border:none;outline:none;font-size:14px;font-weight:700;flex:1;background:transparent;color:var(--m3-on-surface);font-family:inherit;padding:0;min-width:0}
+.codice-wrap .ac-clear{border:none;background:transparent;color:var(--m3-on-surface-var);width:auto;height:auto;padding:0 4px;font-size:16px;flex-shrink:0}
+.codice-wrap .ac-clear:hover{color:var(--m3-error);background:transparent;border-color:transparent}
 
 /* ── RESPONSIVE ── */
 @media (max-width:1024px){
@@ -518,26 +523,28 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
   <div class="section" id="sez-caratteristiche">
     <div class="section-hdr"><span class="section-icon"><span class="msy">set_meal</span></span><span class="section-hdr-title">Caratteristiche del prodotto</span></div>
     <div class="section-body">
-      <div class="fg">
-        <div class="field ff"><label>Nome commerciale prodotto</label><input type="text" id="f-nome-comm" placeholder="Es: FILETTO DI BRANZINO BIOLOGICO SURGELATO IN BLOCCO" style="font-weight:700;text-transform:uppercase"></div>
-        <div class="field ff ac-wrap">
-          <label>Codice Articolo *</label>
-          <div class="ac-row">
+      <div class="col-stack">
+        <div class="field ac-wrap">
+          <label>Codice articolo <span class="req">*</span></label>
+          <div class="codice-wrap">
+            <span class="msy msy-inv">inventory_2</span>
             <input type="text" id="f-codice" autocomplete="off" placeholder="Cerca codice o descrizione…" oninput="acInput(this)" onfocus="acInput(this)" onblur="acBlur()" onkeydown="acKeyDown(event)">
             <button type="button" class="ac-clear" id="ac-clear" title="Rimuovi collegamento articolo" onclick="acClear()">✕</button>
           </div>
           <div class="ac-list" id="ac-list"></div>
           <div id="ac-status"></div>
+          <span style="font-size:11px;color:var(--m3-on-surface-var)">Anagrafica Articoli · descrizione e EAN compilati dal record collegato</span>
         </div>
-        <div class="field ff"><label>Denominazione di vendita *</label><input type="text" id="f-denominazione" placeholder="Es: Filetti di branzino biologico surgelati in blocco"></div>
-        <div class="field ff"><label>Codice EAN</label><input type="text" id="f-ean"></div>
-        <div class="field ff"><label>Ingredienti</label><textarea id="f-ingredienti" placeholder="Lista ingredienti in ordine decrescente di peso..."></textarea></div>
-        <div class="field ff"><label>Tipologia / Stato</label><input type="text" id="f-tipologia" placeholder="Es: Surgelato / Intero eviscerato"></div>
-        <div class="field ff"><label>Modalità di consumo</label><input type="text" id="f-consumo" placeholder="Es: Previa cottura"></div>
-        <div class="field ff"><label id="lbl-scadenza">Termine Minimo di Conservazione</label><input type="text" id="f-scadenza" placeholder="Es: 24 mesi dalla data di produzione"></div>
-        <div class="field ff"><label>Modalità di conservazione</label><textarea id="f-conservazione" placeholder="Es: Conservare a -18°C"></textarea></div>
-        <div class="field ff"><label>Identificativo lotto</label><textarea id="f-lotto" placeholder="Es: Data di produzione impressa sull'imballo esterno"></textarea></div>
-        <div class="field ff"><label>Specifiche di lavorazione</label><textarea id="f-lavorazione" placeholder="Es: Prodotto lavorato e confezionato in stabilimento italiano"></textarea></div>
+        <div class="field"><label>Nome commerciale prodotto</label><textarea rows="1" id="f-nome-comm" placeholder="Es: FILETTO DI BRANZINO BIOLOGICO SURGELATO IN BLOCCO" style="font-weight:700;text-transform:uppercase"></textarea></div>
+        <div class="field"><label>Denominazione di vendita <span class="req">*</span></label><textarea rows="1" id="f-denominazione" placeholder="Es: Filetti di branzino biologico surgelati in blocco"></textarea></div>
+        <div class="field"><label>Codice EAN</label><textarea rows="1" id="f-ean"></textarea></div>
+        <div class="field"><label>Ingredienti</label><textarea rows="1" id="f-ingredienti" placeholder="Lista ingredienti in ordine decrescente di peso..."></textarea></div>
+        <div class="field"><label>Tipologia / Stato</label><textarea rows="1" id="f-tipologia" placeholder="Es: Surgelato / Intero eviscerato"></textarea></div>
+        <div class="field"><label>Modalità di consumo</label><textarea rows="1" id="f-consumo" placeholder="Es: Previa cottura"></textarea></div>
+        <div class="field"><label id="lbl-scadenza">Termine Minimo di Conservazione</label><textarea rows="1" id="f-scadenza" placeholder="Es: 24 mesi dalla data di produzione"></textarea></div>
+        <div class="field"><label>Modalità di conservazione</label><textarea rows="1" id="f-conservazione" placeholder="Es: Conservare a -18°C"></textarea></div>
+        <div class="field"><label>Identificativo lotto</label><textarea rows="1" id="f-lotto" placeholder="Es: Data di produzione impressa sull'imballo esterno"></textarea></div>
+        <div class="field"><label>Specifiche di lavorazione</label><textarea rows="1" id="f-lavorazione" placeholder="Es: Prodotto lavorato e confezionato in stabilimento italiano"></textarea></div>
       </div>
     </div>
   </div>
@@ -546,12 +553,12 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
   <div class="section" id="sez-imballo">
     <div class="section-hdr"><span class="section-icon"><span class="msy">package_2</span></span><span class="section-hdr-title">Confezionamento ed imballo</span></div>
     <div class="section-body">
-      <div class="fg">
-        <div class="field"><label>Peso</label><input type="text" id="f-peso" placeholder="Es: 5 kg"></div>
-        <div class="field"><label>Confezione</label><input type="text" id="f-confezione" placeholder="Es: Blocco in sacchetto PE"></div>
-        <div class="field"><label>Imballo</label><input type="text" id="f-imballo" placeholder="Es: Cartone ondulato"></div>
-        <div class="field"><label>Palletizzazione</label><input type="text" id="f-palletizzazione" placeholder="Es: Pallet EUR 80×120 cm"></div>
-        <div class="field"><label>Colli × pallet</label><input type="text" id="f-colli-pallet" placeholder="Es: 40"></div>
+      <div class="col-stack">
+        <div class="field"><label>Peso</label><textarea rows="1" id="f-peso" placeholder="Es: 5 kg"></textarea></div>
+        <div class="field"><label>Confezione</label><textarea rows="1" id="f-confezione" placeholder="Es: Blocco in sacchetto PE"></textarea></div>
+        <div class="field"><label>Imballo</label><textarea rows="1" id="f-imballo" placeholder="Es: Cartone ondulato"></textarea></div>
+        <div class="field"><label>Palletizzazione</label><textarea rows="1" id="f-palletizzazione" placeholder="Es: Pallet EUR 80×120 cm"></textarea></div>
+        <div class="field"><label>Colli × pallet</label><textarea rows="1" id="f-colli-pallet" placeholder="Es: 40"></textarea></div>
       </div>
     </div>
   </div>
@@ -1050,9 +1057,9 @@ function acAggiornaStato() {
   const st = document.getElementById('ac-status');
   if(!st) return;
   if(articoloCorrente) {
-    st.innerHTML = `<span class="ac-chip linked"><span class="dot"></span>Articolo da anagrafica</span>`;
+    st.innerHTML = `<span class="ac-chip linked"><span class="msy">link</span>Collegato all'anagrafica</span>`;
   } else if(articoloLibero) {
-    st.innerHTML = `<span class="ac-chip libero"><span class="dot"></span>In attesa di approvazione</span>`;
+    st.innerHTML = `<span class="ac-chip libero"><span class="msy">warning</span>Da approvare</span>`;
   } else {
     st.innerHTML = '';
   }
