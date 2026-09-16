@@ -1990,7 +1990,7 @@ function apriDettaglio(recordId) {
   document.getElementById('dp-body').innerHTML = `
     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
       ${stato}${tipoTag}
-      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="modificaScheda('${s.id}')"><span class="msy msy-18">edit</span>Modifica</button>
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="chiudiDettaglio();modificaScheda('${s.id}')"><span class="msy msy-18">edit</span>Modifica</button>
     </div>
     <div class="dp-card">
       <div class="dp-card-hdr">Testata</div>
