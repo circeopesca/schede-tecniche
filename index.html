@@ -130,7 +130,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .form-actions{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ── SECTION (fascia con pastiglia icona) ── */
-.section{background:var(--m3-surf-low);border:1px solid var(--m3-outline-var);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.section{background:var(--m3-surf-low);border:1px solid var(--m3-outline-var);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;transition:border-color .18s,box-shadow .18s}
+.section.active{border-color:var(--m3-secondary);box-shadow:0 0 0 2px rgba(0,88,190,.18)}
 .section-hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--m3-surf);border-bottom:1px solid var(--m3-outline-var);cursor:pointer;user-select:none}
 .section-hdr:hover{background:var(--m3-surf-high)}
 .section-icon{width:32px;height:32px;border-radius:var(--radius-pill);background:var(--m3-secondary-hover);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -2274,14 +2275,28 @@ function initSezObserver() {
     entries.forEach(entry => {
       if(entry.isIntersecting) {
         links.forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.form-sections .section.active').forEach(s => s.classList.remove('active'));
         const link = nav.querySelector(`a[href="#${entry.target.id}"]`);
         if(link) link.classList.add('active');
+        entry.target.classList.add('active');
       }
     });
   }, { rootMargin:'-30% 0px -60% 0px' });
   SEZIONI_DEF.forEach(sez => {
     const el = document.getElementById(sez.id);
     if(el) _sezObserver.observe(el);
+  });
+  // Click esplicito su una voce dell'indice: evidenzia subito il riquadro
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      const id = link.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(!target) return;
+      document.querySelectorAll('.form-sections .section.active').forEach(s => s.classList.remove('active'));
+      target.classList.add('active');
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
   });
 }
 
