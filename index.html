@@ -386,6 +386,9 @@ html{scroll-behavior:smooth}
 .codice-wrap input{border:none;outline:none;font-size:14px;font-weight:700;flex:1;background:transparent;color:var(--m3-on-surface);font-family:inherit;padding:0;min-width:0}
 .codice-wrap .ac-clear{border:none;background:transparent;color:var(--m3-on-surface-var);width:auto;height:auto;padding:0 4px;font-size:16px;flex-shrink:0}
 .codice-wrap .ac-clear:hover{color:var(--m3-error);background:transparent;border-color:transparent}
+.codice-wrap:has(input[data-locked]){background:var(--m3-surf);border-color:var(--m3-outline-var)}
+.codice-wrap:has(input[data-locked]) .msy-inv{color:var(--m3-on-surface-var)}
+.codice-wrap:has(input[data-locked]) input{color:var(--m3-on-surface-var)}
 
 /* ── RESPONSIVE ── */
 @media (max-width:1024px){
@@ -1008,6 +1011,17 @@ function apriForm(tipo, editId=null, dati=null) {
   svuotaForm();
 
   if(dati) popola(dati);
+  // In modifica il codice articolo è bloccato (il record è già collegato all'anagrafica)
+  const cod = document.getElementById('f-codice');
+  const acClear = document.getElementById('ac-clear');
+  const acList = document.getElementById('ac-list');
+  if(editId) {
+    if(cod) { cod.readOnly = true; cod.setAttribute('data-locked','1'); cod.style.cursor = 'not-allowed'; }
+    if(acClear) acClear.style.display = 'none';
+    if(acList) { acList.innerHTML = ''; acList.classList.remove('open'); }
+  } else {
+    if(cod) { cod.readOnly = false; cod.removeAttribute('data-locked'); cod.style.cursor = ''; }
+  }
   nav('form');
   setTimeout(() => { initAutoResize(); renderSezNav(); initSezObserver(); }, 80);
 }
@@ -1099,6 +1113,8 @@ function acAggiornaStato() {
 }
 
 function acInput(inp) {
+  // Codice bloccato in modifica: niente autocomplete
+  if(inp && inp.hasAttribute('data-locked')) return;
   // Se l'utente modifica dopo aver selezionato, rompiamo il collegamento
   if(articoloCorrente && inp.value.trim() !== articoloCorrente.codice) {
     articoloCorrente = null;
@@ -1574,7 +1590,7 @@ function esportaJSONDati(dati, nome) {
 
 
 let _arcSearchTimer = null;
-let _arcPartizione = 'bio';   // bio | conv
+let _arcPartizione = 'tutti'; // tutti | bio | conv
 let _arcFiltroStato = 'tutti'; // tutti | attive | attesa
 
 function _isBioTipo(t) { const s=(t||'').toLowerCase(); return s.startsWith('biologico'); }
@@ -1583,12 +1599,18 @@ function _isConvTipo(t) { const s=(t||'').toLowerCase(); return s.startsWith('co
 function renderArchivio() {
   const body = document.getElementById('archivio-body');
   if(!body) return;
-  const tipologieOpts = Object.values(TIPI).map(t => { const lbl = (t.label||'').replace(/—/g,'-'); return `<option value="${lbl}">${lbl}</option>`; }).join('');
+  const tipologieOpts = Object.values(TIPI).filter(t => {
+    if(_arcPartizione === 'bio') return t.isBio;
+    if(_arcPartizione === 'conv') return !t.isBio;
+    return true;
+  }).map(t => { const lbl = (t.label||'').replace(/—/g,'-'); return `<option value="${lbl}">${lbl}</option>`; }).join('');
   const nBio = schede.filter(s => _isBioTipo(s.Tipologia)).length;
   const nConv = schede.filter(s => _isConvTipo(s.Tipologia)).length;
+  const nTot = schede.length;
   body.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="partizioni">
+        <button class="partizione-btn ${_arcPartizione==='tutti'?'active':''}" onclick="setPartizione('tutti')"><span class="msy msy-18">inventory_2</span>Tutti (${nTot})</button>
         <button class="partizione-btn ${_arcPartizione==='bio'?'active':''}" onclick="setPartizione('bio')"><span class="msy msy-18">eco</span>Biologico (${nBio})</button>
         <button class="partizione-btn ${_arcPartizione==='conv'?'active':''}" onclick="setPartizione('conv')"><span class="msy msy-18">set_meal</span>Convenzionale (${nConv})</button>
       </div>
@@ -1678,12 +1700,12 @@ function renderTabellaArchivio() {
   if(!tbl) return;
   const lookup1 = v => Array.isArray(v) ? (v[0]||'') : (v||'');
   const itemsAll = schede.filter(s => {
-    // Partizione (bio/conv)
+    // Partizione (tutti/bio/conv)
     if(_arcPartizione === 'bio' && !_isBioTipo(s.Tipologia)) return false;
     if(_arcPartizione === 'conv' && !_isConvTipo(s.Tipologia)) return false;
     // Filtro stato
-    if(_arcFiltroStato === 'attive') return !isSchedaLibera(s);
-    if(_arcFiltroStato === 'attesa') return isSchedaLibera(s);
+    if(_arcFiltroStato === 'attive' && isSchedaLibera(s)) return false;
+    if(_arcFiltroStato === 'attesa' && !isSchedaLibera(s)) return false;
     return true;
   }).slice().sort((a,b) => {
     let va, vb;
@@ -1698,7 +1720,7 @@ function renderTabellaArchivio() {
   });
 
   const totale = itemsAll.length;
-  const partLbl = _arcPartizione === 'bio' ? 'BIOLOGICO' : 'CONVENZIONALE';
+  const partLbl = _arcPartizione === 'bio' ? 'BIOLOGICO' : _arcPartizione === 'conv' ? 'CONVENZIONALE' : 'TUTTE';
   const totalPages = Math.max(1, Math.ceil(totale / ARC_PAGE_SIZE));
   if(_arcPage > totalPages) _arcPage = totalPages;
   const start = (_arcPage - 1) * ARC_PAGE_SIZE;
@@ -1985,15 +2007,12 @@ function apriDettaglio(recordId) {
   document.getElementById('dp-desc').textContent = desc;
   const stato = lib ? '<span class="tag-stato attesa">DA APPROVARE</span>' : '<span class="tag-stato attiva">ATTIVA</span>';
   const tipoTag = `<span class="tag-tipo">${_shortTipologia(s.Tipologia)}</span>`;
-  const revLine = lib ? 'non collegato — da approvare' : 'collegato all\'anagrafica';
-
   const campi = [
     ['Codice articolo', cod],
     ['Descrizione', desc],
     ['Tipologia', s.Tipologia||'—'],
     ['Revisione', s.n_revisione ? `${s.n_revisione} del ${fmt(s.data_revisione)}` : '—'],
-    ['Responsabile revisione', s.responsabile_revisione || '—'],
-    ['Articolo in anagrafica', revLine]
+    ['Responsabile revisione', s.responsabile_revisione || '—']
   ].map(([k,v]) => `<div class="dp-row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
 
   const pid = _pdfId(s), jid = _jsonId(s);
