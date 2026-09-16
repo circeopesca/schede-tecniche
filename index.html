@@ -485,6 +485,22 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
     </div>
   </div>
 
+  <div class="form-shell">
+    <nav class="sez-nav" id="sez-nav">
+      <div class="sez-nav-lbl">Sezioni</div>
+      <a href="#sez-produttore"><span class="dot"></span><span style="flex:1;min-width:0">Dati produttore</span><span class="cnt">auto</span></a>
+      <a href="#sez-immagini"><span class="dot"></span><span style="flex:1;min-width:0">Immagine e loghi</span><span class="cnt">—</span></a>
+      <a href="#sez-caratteristiche"><span class="dot"></span><span style="flex:1;min-width:0">Caratteristiche</span><span class="cnt">0/10</span></a>
+      <a href="#sez-imballo"><span class="dot"></span><span style="flex:1;min-width:0">Confezionamento</span><span class="cnt">0/5</span></a>
+      <a href="#sez-nutrizionali"><span class="dot"></span><span style="flex:1;min-width:0">Nutrizionali</span><span class="cnt">0/7</span></a>
+      <a href="#sez-micro"><span class="dot"></span><span style="flex:1;min-width:0">Microbiologiche</span><span class="cnt">0/0</span></a>
+      <a href="#sez-allergeni"><span class="dot"></span><span style="flex:1;min-width:0">Allergeni / OGM</span><span class="cnt">0/4</span></a>
+      <a href="#sez-normativi"><span class="dot"></span><span style="flex:1;min-width:0">Normativi</span><span class="cnt">0/1</span></a>
+      <a href="#sez-revisione"><span class="dot"></span><span style="flex:1;min-width:0">Revisione</span><span class="cnt">0/3</span></a>
+      <div class="sez-nav-footer" id="sez-nav-footer">0 sezioni su 9 compilate</div>
+    </nav>
+    <div class="form-sections">
+
   <!-- 1. DATI PRODUTTORE (readonly) -->
   <div class="section" id="sez-produttore">
     <div class="section-hdr"><span class="section-icon"><span class="msy">domain</span></span><span class="section-hdr-title">Dati del produttore</span><span class="section-note">da Impostazioni</span></div>
@@ -635,6 +651,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
     <button class="btn btn-outline btn-sm" onclick="esportaJSON()"><span class="msy msy-18">download</span>JSON</button>
     <button class="btn btn-outline btn-sm" onclick="anteprimaPDF()"><span class="msy msy-18">picture_as_pdf</span>Anteprima</button>
     <button class="btn btn-primary btn-sm" onclick="chiediNome()"><span class="msy msy-18">save</span>Salva</button>
+  </div>
+    </div>
   </div>
 </div>
 
@@ -976,7 +994,7 @@ function apriForm(tipo, editId=null, dati=null) {
 
   if(dati) popola(dati);
   nav('form');
-  setTimeout(initAutoResize, 80);
+  setTimeout(() => { initAutoResize(); renderSezNav(); initSezObserver(); }, 80);
 }
 
 
@@ -2194,6 +2212,77 @@ function mostraBanner(msg, opts = {}) {
   mostraBanner._t = setTimeout(() => b.classList.remove('show'), opts.duration || 3500);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// INDICE SEZIONI (colonna sinistra del form)
+// ═══════════════════════════════════════════════════════════════════════════════
+const SEZIONI_DEF = [
+  { id:'sez-produttore',     label:'Dati produttore',    mode:'auto' },
+  { id:'sez-immagini',       label:'Immagine e loghi',   mode:'imgs' },
+  { id:'sez-caratteristiche',label:'Caratteristiche',    fields:['f-nome-comm','f-codice','f-denominazione','f-ean','f-ingredienti','f-tipologia','f-consumo','f-scadenza','f-conservazione','f-lotto'] },
+  { id:'sez-imballo',        label:'Confezionamento',    fields:['f-peso','f-confezione','f-imballo','f-palletizzazione','f-colli-pallet'] },
+  { id:'sez-nutrizionali',   label:'Nutrizionali',       fields:['n-energia','n-grassi','n-saturi','n-carbo','n-zuccheri','n-proteine','n-sale'] },
+  { id:'sez-micro',          label:'Microbiologiche',    mode:'micro' },
+  { id:'sez-allergeni',      label:'Allergeni / OGM',    fields:['f-contiene','f-puo-contenere','f-cross','f-ogm'] },
+  { id:'sez-normativi',      label:'Normativi',          fields:['f-rif-norm'] },
+  { id:'sez-revisione',      label:'Revisione',          fields:['f-rev-n','f-rev-data','f-responsabile'] }
+];
+
+function renderSezNav() {
+  const nav = document.getElementById('sez-nav');
+  if(!nav) return;
+  let sezComplete = 0;
+  const links = nav.querySelectorAll('a');
+  SEZIONI_DEF.forEach((sez, i) => {
+    const link = links[i];
+    if(!link) return;
+    const dot = link.querySelector('.dot');
+    const cnt = link.querySelector('.cnt');
+    let done, text;
+    if(sez.mode === 'auto') {
+      done = true; text = 'auto';
+    } else if(sez.mode === 'imgs') {
+      const hasImg = !!imgs.prodimg;
+      done = true; text = hasImg ? 'ok' : '—';
+    } else if(sez.mode === 'micro') {
+      const vals = document.querySelectorAll('[data-mv]');
+      const filled = Array.from(vals).filter(v => v.value && v.value.trim()).length;
+      done = vals.length > 0 && filled === vals.length;
+      text = `${filled}/${vals.length||0}`;
+    } else {
+      const filled = sez.fields.filter(id => { const el = document.getElementById(id); return el && el.value && el.value.trim(); }).length;
+      done = filled === sez.fields.length;
+      text = `${filled}/${sez.fields.length}`;
+    }
+    link.classList.toggle('done', done);
+    if(cnt) cnt.textContent = text;
+    if(done) sezComplete++;
+  });
+  const f = document.getElementById('sez-nav-footer');
+  if(f) f.textContent = `${sezComplete} sezioni su ${SEZIONI_DEF.length} compilate`;
+}
+
+// Scroll spy: evidenzia la sezione attiva nell'indice
+let _sezObserver = null;
+function initSezObserver() {
+  if(_sezObserver) _sezObserver.disconnect();
+  const nav = document.getElementById('sez-nav');
+  if(!nav) return;
+  const links = nav.querySelectorAll('a');
+  _sezObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = nav.querySelector(`a[href="#${entry.target.id}"]`);
+        if(link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin:'-30% 0px -60% 0px' });
+  SEZIONI_DEF.forEach(sez => {
+    const el = document.getElementById(sez.id);
+    if(el) _sezObserver.observe(el);
+  });
+}
+
 function initAutoResize() {
   document.querySelectorAll('.section-body textarea').forEach(el => {
     el.style.height = 'auto';
@@ -2225,6 +2314,11 @@ document.addEventListener('input', e => {
   if(e.target && e.target.classList && e.target.classList.contains('field-err')) {
     e.target.classList.remove('field-err');
     rimuoviBannerInline();
+  }
+  // Aggiorna il contatore dell'indice sezioni se siamo nel form
+  const view = document.getElementById('view-form');
+  if(view && view.classList.contains('active') && e.target && (e.target.closest('.form-sections') || e.target.closest('#view-form'))) {
+    renderSezNav();
   }
 });
 
