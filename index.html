@@ -401,8 +401,13 @@ html{scroll-behavior:smooth}
 .arch-card-cod{font-size:14px;font-weight:700;letter-spacing:.02em;flex:1;min-width:0}
 .arch-card-desc{font-size:14px;line-height:1.35;color:var(--m3-on-surface)}
 .arch-card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--m3-on-surface-var)}
-.arch-card-actions{display:flex;justify-content:flex-end;gap:2px;margin-top:2px}
-.arch-card-actions .row-action{width:40px;height:40px}
+.arch-card-toggle{width:36px;height:36px;margin:-6px -6px -6px 0;flex-shrink:0}
+.arch-card-toggle .msy{transition:transform .18s}
+.arch-card.open .arch-card-toggle{background:var(--m3-secondary-fixed);color:var(--m3-secondary)}
+.arch-card.open .arch-card-toggle .msy{transform:rotate(90deg)}
+.arch-card-actions{display:none;justify-content:space-between;gap:2px;margin-top:4px;padding-top:8px;border-top:1px solid var(--m3-surf-highest)}
+.arch-card.open .arch-card-actions{display:flex;animation:fadeInView .15s ease-out}
+.arch-card-actions .row-action{width:44px;height:40px}
 
 /* ── RESPONSIVE ── */
 @media (max-width:1024px){
@@ -432,6 +437,15 @@ html{scroll-behavior:smooth}
   /* Archivio: tabella → card */
   .arch-tbl-wrap{display:none}
   .arch-cards{display:flex}
+  /* Filtri in colonna: ricerca / stato / tipologia */
+  .arc-filters{flex-direction:column;align-items:stretch!important}
+  .arc-search-wrap{min-width:0!important;width:100%}
+  .arc-stato-group{width:100%;justify-content:flex-start}
+  .arc-stato-group .chip-filtro{flex:1;justify-content:center}
+  .arc-tipo-wrap{width:100%}
+  .arc-tipo-wrap select{flex:1;width:100%;padding:10px 12px!important}
+  /* Form in modifica: niente "torna indietro" (c'è la barra inferiore) */
+  #view-form.edit-mode .form-hdr-left .back{display:none}
   .partizioni{overflow-x:auto;scrollbar-width:none;padding:6px 6px 0}
   .partizioni::-webkit-scrollbar{display:none}
   .partizione-btn{min-width:auto;flex:1 0 auto;white-space:nowrap;padding:9px 12px;font-size:13px}
@@ -1091,6 +1105,7 @@ function apriForm(tipo, editId=null, dati=null) {
   const cod = document.getElementById('f-codice');
   const acClear = document.getElementById('ac-clear');
   const acList = document.getElementById('ac-list');
+  document.getElementById('view-form')?.classList.toggle('edit-mode', !!editId);
   if(editId) {
     if(cod) { cod.readOnly = true; cod.setAttribute('data-locked','1'); cod.style.cursor = 'not-allowed'; }
     if(acClear) acClear.style.display = 'none';
@@ -1696,17 +1711,19 @@ function renderArchivio() {
         <button class="partizione-btn ${_arcPartizione==='bio'?'active':''}" onclick="setPartizione('bio')"><span class="msy msy-18">eco</span>Biologico (${nBio})</button>
         <button class="partizione-btn ${_arcPartizione==='conv'?'active':''}" onclick="setPartizione('conv')"><span class="msy msy-18">set_meal</span>Convenzionale (${nConv})</button>
       </div>
-      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
-        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:260px;background:var(--m3-surf-low);border:1px solid ${_arcSearch?'var(--m3-secondary)':'var(--m3-outline-var)'};border-radius:4px;padding:8px 12px">
+      <div class="arc-filters" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+        <div class="arc-search-wrap" style="display:flex;align-items:center;gap:6px;flex:1;min-width:260px;background:var(--m3-surf-low);border:1px solid ${_arcSearch?'var(--m3-secondary)':'var(--m3-outline-var)'};border-radius:4px;padding:8px 12px">
           <span class="msy" style="color:${_arcSearch?'var(--m3-secondary)':'var(--m3-on-surface-var)'}">search</span>
           <input type="text" id="arc-search" placeholder="Codice, descrizione, responsabile…" value="${_arcSearch.replace(/"/g,'&quot;')}" style="border:none;background:transparent;outline:none;font-size:14px;flex:1;color:var(--m3-on-surface);font-family:inherit">
           ${_arcSearch?`<button class="row-action" data-tip="Cancella ricerca" style="width:24px;height:24px" onclick="resetSearch()"><span class="msy" style="font-size:16px">close</span></button>`:''}
         </div>
-        <span style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--m3-on-surface-var);margin-left:4px">Stato</span>
-        <button class="chip-filtro ${_arcFiltroStato==='tutti'?'active':''}" onclick="setFiltroStato('tutti')">Tutti</button>
-        <button class="chip-filtro ${_arcFiltroStato==='attive'?'active':''}" onclick="setFiltroStato('attive')">Attive</button>
-        <button class="chip-filtro ${_arcFiltroStato==='attesa'?'active':''}" onclick="setFiltroStato('attesa')">Da approvare</button>
-        <div style="display:inline-flex;align-items:center;gap:4px">
+        <div class="arc-stato-group" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--m3-on-surface-var);margin-left:4px">Stato</span>
+          <button class="chip-filtro ${_arcFiltroStato==='tutti'?'active':''}" onclick="setFiltroStato('tutti')">Tutti</button>
+          <button class="chip-filtro ${_arcFiltroStato==='attive'?'active':''}" onclick="setFiltroStato('attive')">Attive</button>
+          <button class="chip-filtro ${_arcFiltroStato==='attesa'?'active':''}" onclick="setFiltroStato('attesa')">Da approvare</button>
+        </div>
+        <div class="arc-tipo-wrap" style="display:inline-flex;align-items:center;gap:4px">
           <select id="arc-tipologia" style="border:1px solid ${_arcTipologia?'var(--m3-secondary)':'var(--m3-outline-var)'};background:${_arcTipologia?'var(--m3-secondary-fixed)':'var(--m3-surf-low)'};color:${_arcTipologia?'var(--m3-on-secondary-fixed)':'var(--m3-on-surface)'};border-radius:4px;padding:8px 10px;font-size:13px;font-weight:${_arcTipologia?'600':'400'};font-family:inherit">
             <option value="">Tutte le tipologie</option>
             ${tipologieOpts}
@@ -1858,7 +1875,7 @@ function renderTabellaArchivio() {
     const stato = lib ? '<span class="tag-stato attesa">DA APPROVARE</span>' : '<span class="tag-stato attiva">ATTIVA</span>';
     const rev = s.n_revisione ? `Rev. ${s.n_revisione} del ${fmtData(s.data_revisione)}` : 'Rev. —';
     return `<div class="arch-card ${lib?'row-pending':''}" onclick="apriDettaglio('${s.id}')">
-      <div class="arch-card-top"><span class="arch-card-cod">${cod}</span>${stato}</div>
+      <div class="arch-card-top"><span class="arch-card-cod">${cod}</span>${stato}<button class="row-action arch-card-toggle" data-tip="Azioni" onclick="event.stopPropagation();this.closest('.arch-card').classList.toggle('open')"><span class="msy">more_vert</span></button></div>
       <div class="arch-card-desc">${desc}</div>
       <div class="arch-card-meta"><span class="tag-tipo">${_shortTipologia(s.Tipologia)}</span><span>${rev}</span>${s.responsabile_revisione?`<span>· ${s.responsabile_revisione}</span>`:''}</div>
       <div class="arch-card-actions" onclick="event.stopPropagation()">
