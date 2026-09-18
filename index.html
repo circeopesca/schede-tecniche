@@ -125,7 +125,13 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .form-hdr-left .back{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--m3-on-surface-var);cursor:pointer;margin-bottom:4px;background:transparent;border:none;padding:0;font-family:inherit}
 .form-hdr-left .back .msy{font-size:16px}
 .form-hdr-left .back:hover{color:var(--m3-secondary)}
-#view-form.edit-mode .form-hdr-left .back{display:none}
+#view-form.edit-mode .form-hdr-left .back,#view-form.rev-mode .form-hdr-left .back{display:none}
+.form-back-mobile{display:none}
+@media (max-width:768px){.btn-annulla{display:none}}
+@media (max-width:768px){
+  .form-back-mobile{display:flex;flex-basis:100%;width:100%;justify-content:center;align-items:center;gap:8px;padding:14px 16px;font-size:16px;font-weight:700;background:var(--m3-surf-low);border:1px solid var(--m3-outline-var);border-radius:var(--radius);margin-bottom:6px}
+  .form-back-mobile:active{background:var(--m3-surf-high)}
+}
 .form-title{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:var(--m3-on-surface)}
 .form-tipo{font-size:12px;color:var(--m3-on-surface-var);margin-top:4px}
 .form-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -537,6 +543,7 @@ html{scroll-behavior:smooth}
 
 <!-- ══ HOME / IMPORTA ══ -->
 <div class="view" id="view-home">
+  <button type="button" class="btn btn-outline form-back-mobile" onclick="nav('archivio')"><span class="msy msy-24">arrow_back</span>Indietro</button>
   <div class="page-hdr">
     <div class="page-title">Importa scheda</div>
     <div class="page-sub">Riapri una scheda dal file JSON esportato dall'applicazione</div>
@@ -563,6 +570,7 @@ html{scroll-behavior:smooth}
 
 <!-- ══ NUOVA ══ -->
 <div class="view" id="view-nuova">
+  <button type="button" class="btn btn-outline form-back-mobile" onclick="nav('archivio')"><span class="msy msy-24">arrow_back</span>Indietro</button>
   <div class="page-hdr">
     <div class="page-title">Nuova scheda tecnica</div>
     <div class="page-sub">Scegli la tipologia: imposta i parametri microbiologici e l'etichetta di scadenza</div>
@@ -578,12 +586,14 @@ html{scroll-behavior:smooth}
 <!-- ══ FORM ══ -->
 <div class="view" id="view-form">
   <div class="form-hdr">
+    <button type="button" class="btn btn-outline form-back-mobile" id="form-back-mobile" onclick="nav('archivio')"><span class="msy msy-24">arrow_back</span>Indietro</button>
     <div class="form-hdr-left">
       <button type="button" class="back" id="form-back" onclick="nav('nuova')"><span class="msy">arrow_back</span>Archivio</button>
       <div class="form-title" id="form-title">Scheda tecnica</div>
       <div class="form-tipo" id="form-tipo"></div>
     </div>
     <div class="form-actions">
+      <button class="btn btn-outline btn-sm btn-annulla" onclick="annullaForm()"><span class="msy msy-18">close</span>Annulla</button>
       <button class="btn btn-outline btn-sm" onclick="esportaJSON()"><span class="msy msy-18">download</span>JSON</button>
       <button class="btn btn-outline btn-sm" onclick="anteprimaPDF()"><span class="msy msy-18">picture_as_pdf</span>Anteprima</button>
       <button class="btn btn-primary btn-sm" id="btn-salva" onclick="chiediNome()"><span class="msy msy-18">save</span>Salva</button>
@@ -753,6 +763,7 @@ html{scroll-behavior:smooth}
   </div>
 
   <div style="display:flex;gap:8px;justify-content:flex-end;padding:6px 0 32px;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm btn-annulla" onclick="annullaForm()"><span class="msy msy-18">close</span>Annulla</button>
     <button class="btn btn-outline btn-sm" onclick="esportaJSON()"><span class="msy msy-18">download</span>JSON</button>
     <button class="btn btn-outline btn-sm" onclick="anteprimaPDF()"><span class="msy msy-18">picture_as_pdf</span>Anteprima</button>
     <button class="btn btn-primary btn-sm" onclick="chiediNome()"><span class="msy msy-18">save</span>Salva</button>
@@ -763,6 +774,7 @@ html{scroll-behavior:smooth}
 
 <!-- ══ IMPOSTAZIONI ══ -->
 <div class="view" id="view-impostazioni">
+  <button type="button" class="btn btn-outline form-back-mobile" onclick="nav('archivio')"><span class="msy msy-24">arrow_back</span>Indietro</button>
   <div class="page-hdr">
     <div class="page-title">Impostazioni azienda</div>
     <div class="page-sub">Precompilano l'intestazione e il piè di pagina di ogni scheda</div>
@@ -1018,7 +1030,14 @@ function aggiornaReadonly() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // NAVIGAZIONE
 // ═══════════════════════════════════════════════════════════════════════════════
+let _prevView = 'archivio';
+function annullaForm() {
+  chiudiDettaglio();
+  nav(_prevView && _prevView !== 'form' ? _prevView : 'archivio');
+}
 function nav(id) {
+  const cur = document.querySelector('.view.active');
+  if(cur && cur.id.startsWith('view-') && cur.id !== 'view-'+id) _prevView = cur.id.slice(5);
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
   const view = document.getElementById('view-'+id);
@@ -1100,6 +1119,8 @@ function apriForm(tipo, editId=null, dati=null) {
   document.getElementById('form-title').textContent = _cod ? `${_cod}${_desc?' · '+_desc:''}` : (editId ? 'Modifica scheda tecnica' : 'Nuova scheda tecnica');
   document.getElementById('form-tipo').textContent = `${editId ? 'Modifica' : (dati ? 'Nuova revisione' : 'Nuova scheda')} · ${cfg.label}`;
   document.getElementById('form-back').onclick = () => nav(editId ? 'archivio' : 'nuova');
+  const backMobile = document.getElementById('form-back-mobile');
+  if(backMobile) backMobile.onclick = () => nav(editId ? 'archivio' : 'nuova');
   document.getElementById('form-back').innerHTML = `<span class="msy">arrow_back</span>${editId ? 'Archivio' : 'Cambia tipologia'}`;
   document.getElementById('lbl-scadenza').textContent = cfg.scadenza;
   const microNote = document.getElementById('sez-micro-note');
@@ -1116,6 +1137,7 @@ function apriForm(tipo, editId=null, dati=null) {
   const acClear = document.getElementById('ac-clear');
   const acList = document.getElementById('ac-list');
   document.getElementById('view-form')?.classList.toggle('edit-mode', !!editId);
+  document.getElementById('view-form')?.classList.toggle('rev-mode', !editId && !!dati);
   if(editId) {
     if(cod) { cod.readOnly = true; cod.setAttribute('data-locked','1'); cod.style.cursor = 'not-allowed'; }
     if(acClear) acClear.style.display = 'none';
