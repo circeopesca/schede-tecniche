@@ -125,6 +125,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .form-hdr-left .back{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--m3-on-surface-var);cursor:pointer;margin-bottom:4px;background:transparent;border:none;padding:0;font-family:inherit}
 .form-hdr-left .back .msy{font-size:16px}
 .form-hdr-left .back:hover{color:var(--m3-secondary)}
+#view-form.edit-mode .form-hdr-left .back{display:none}
 .form-title{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:var(--m3-on-surface)}
 .form-tipo{font-size:12px;color:var(--m3-on-surface-var);margin-top:4px}
 .form-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -339,7 +340,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--m3-
 .btn[title]:hover::before{content:'';position:absolute;bottom:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--m3-primary-container);pointer-events:none;z-index:50}
 
 /* ── DETAIL PANEL (slide-in da destra) ── */
-.dp-overlay{display:none;position:fixed;inset:0;z-index:50}
+.dp-overlay{display:none;position:fixed;inset:0;z-index:150}
 .dp-overlay.open{display:block;animation:fade-in 160ms ease-out}
 .dp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
 .dp-panel{position:absolute;top:0;bottom:0;right:0;width:min(560px,100%);background:var(--m3-panel);border-left:1px solid var(--m3-outline-var);box-shadow:-8px 0 24px rgba(0,0,0,.08);display:flex;flex-direction:column;animation:slide-in-right 200ms cubic-bezier(.2,.8,.2,1)}
@@ -407,6 +408,11 @@ html{scroll-behavior:smooth}
 .arch-card.open .arch-card-toggle .msy{transform:rotate(90deg)}
 .arch-card-actions{display:none;justify-content:space-between;gap:2px;margin-top:4px;padding-top:8px;border-top:1px solid var(--m3-surf-highest)}
 .arch-card.open .arch-card-actions{display:flex;animation:fadeInView .15s ease-out}
+/* Evidenza dell'articolo su cui si sta agendo */
+.arch-card.open{background:#eef3ff;box-shadow:inset 4px 0 0 var(--m3-secondary)}
+.arch-card.open .arch-card-cod{color:var(--m3-secondary);font-size:15px}
+.arch-card.open .arch-card-desc{font-weight:600}
+.arch-cards:has(.arch-card.open) .arch-card:not(.open){opacity:.5}
 .arch-card-actions .row-action{width:44px;height:40px}
 
 /* ── RESPONSIVE ── */
@@ -444,8 +450,6 @@ html{scroll-behavior:smooth}
   .arc-stato-group .chip-filtro{flex:1;justify-content:center}
   .arc-tipo-wrap{width:100%}
   .arc-tipo-wrap select{flex:1;width:100%;padding:10px 12px!important}
-  /* Form in modifica: niente "torna indietro" (c'è la barra inferiore) */
-  #view-form.edit-mode .form-hdr-left .back{display:none}
   .partizioni{overflow-x:auto;scrollbar-width:none;padding:6px 6px 0}
   .partizioni::-webkit-scrollbar{display:none}
   .partizione-btn{min-width:auto;flex:1 0 auto;white-space:nowrap;padding:9px 12px;font-size:13px}
@@ -564,7 +568,8 @@ html{scroll-behavior:smooth}
     <div class="page-sub">Scegli la tipologia: imposta i parametri microbiologici e l'etichetta di scadenza</div>
   </div>
   <div class="partizioni" style="margin-bottom:12px" id="nuova-partizioni">
-    <button class="partizione-btn active" onclick="setPartizioneNuova('bio')" id="np-bio"><span class="msy msy-18">eco</span>Biologico</button>
+    <button class="partizione-btn active" onclick="setPartizioneNuova('tutti')" id="np-tutti"><span class="msy msy-18">inventory_2</span>Tutti</button>
+    <button class="partizione-btn" onclick="setPartizioneNuova('bio')" id="np-bio"><span class="msy msy-18">eco</span>Biologico</button>
     <button class="partizione-btn" onclick="setPartizioneNuova('conv')" id="np-conv"><span class="msy msy-18">set_meal</span>Convenzionale</button>
   </div>
   <div class="tipo-grid" id="tipo-grid"></div>
@@ -1023,6 +1028,7 @@ function nav(id) {
   if(btn) btn.classList.add('active');
   const main = document.querySelector('.main');
   if(main) main.scrollTop = 0;
+  window.scrollTo({top:0, left:0, behavior:'instant'});
   if(id === 'archivio') aggiornaArchivio();
   if(id === 'nuova') renderTipoGrid();
 }
@@ -1052,9 +1058,10 @@ const TIPI_META = {
   CONV_SURGELATO_CARTONI:     { icona:'ac_unit',  tag:'Cartoni',      titolo:'Convenzionale Surgelato',       formato:'Cartoni' }
 };
 
-let _nuovaPartizione = 'bio';
+let _nuovaPartizione = 'tutti'; // tutti | bio | conv
 function setPartizioneNuova(p) {
   _nuovaPartizione = p;
+  document.getElementById('np-tutti')?.classList.toggle('active', p==='tutti');
   document.getElementById('np-bio')?.classList.toggle('active', p==='bio');
   document.getElementById('np-conv')?.classList.toggle('active', p==='conv');
   renderTipoGrid();
@@ -1063,7 +1070,7 @@ function setPartizioneNuova(p) {
 function renderTipoGrid() {
   const g = document.getElementById('tipo-grid');
   if(!g) return;
-  g.innerHTML = Object.entries(TIPI).filter(([k,cfg]) => _nuovaPartizione==='bio' ? cfg.isBio : !cfg.isBio).map(([k,cfg]) => {
+  g.innerHTML = Object.entries(TIPI).filter(([k,cfg]) => _nuovaPartizione==='tutti' ? true : (_nuovaPartizione==='bio' ? cfg.isBio : !cfg.isBio)).map(([k,cfg]) => {
     const meta = TIPI_META[k] || {icona:'set_meal', tag:cfg.short||'', titolo:cfg.label, formato:''};
     const nMicro = (cfg.micro||[]).length;
     const dettaglio = [meta.formato, cfg.scadenza, `${nMicro} parametri microbiologici`].filter(Boolean).join(' · ');
@@ -1087,8 +1094,11 @@ function apriForm(tipo, editId=null, dati=null) {
   imgs = {prodimg:null,logo0:null,logo1:null,logo2:null,logo3:null};
   const cfg = TIPI[tipo];
 
-  document.getElementById('form-title').textContent = editId ? 'Modifica scheda tecnica' : 'Nuova scheda tecnica';
-  document.getElementById('form-tipo').textContent = cfg.label;
+  // Titolo: evidenzia l'articolo su cui si sta lavorando (codice · denominazione)
+  const _cod = dati && (dati.codice||'').trim();
+  const _desc = dati && ((dati.denominazione||dati.nomeComm||'').trim());
+  document.getElementById('form-title').textContent = _cod ? `${_cod}${_desc?' · '+_desc:''}` : (editId ? 'Modifica scheda tecnica' : 'Nuova scheda tecnica');
+  document.getElementById('form-tipo').textContent = `${editId ? 'Modifica' : (dati ? 'Nuova revisione' : 'Nuova scheda')} · ${cfg.label}`;
   document.getElementById('form-back').onclick = () => nav(editId ? 'archivio' : 'nuova');
   document.getElementById('form-back').innerHTML = `<span class="msy">arrow_back</span>${editId ? 'Archivio' : 'Cambia tipologia'}`;
   document.getElementById('lbl-scadenza').textContent = cfg.scadenza;
